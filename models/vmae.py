@@ -1,3 +1,7 @@
+from shared_layers import CustomActivationFunction
+import torch
+from torch import nn
+
 # Linear Embedding
 class LinearEmbedding(nn.Module):
     def __init__(self, d_model, linear: bool = False):
@@ -37,11 +41,6 @@ class PositionalEncoding(nn.Module):
         x = x * math.sqrt(self.d_model)
         x = x + self.pe[:, :x.size(1), :]
         return x
-
-# Custom activation function
-class CustomActivationFunction(nn.Module):
-    def forward(self, x):
-        return torch.relu(x + torch.sin(x) ** 2)
 
 # Subclassed transformer with custom activation function
 class CustomTransformer(nn.Transformer):

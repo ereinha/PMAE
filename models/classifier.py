@@ -1,3 +1,6 @@
+from torch import nn
+from shared_layers import CustomActivationFunction
+
 # Simple binary classifier
 class BinaryClassifier(nn.Module):
     def __init__(self, input_size, dim, dropout):
