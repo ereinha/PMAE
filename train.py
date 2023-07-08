@@ -3,7 +3,7 @@ from validate import validate
 from masks import ParticleMask, KinematicMask
 from argparse import ArgumentParser
 
-def train(train_loader, val_loader, tae, classifier, device, optimizer, optimizer_2, criterion, class_criterion, mask=None, num_epochs:int=50, val_loss_min:int=999, val_loss_min_2:int=999, save_path:str='./saved_models'):
+def train(train_loader, val_loader, tae, classifier, device, optimizer, optimizer_2, criterion, class_criterion, mask=None, num_epochs:int=50, val_loss_min:int=999, val_loss_min_2:int=999, save_path:str='./saved_models', model_name:str=''):
     for epoch in range(num_epochs):
         tae.train()
         classifier.train()
@@ -81,5 +81,5 @@ def train(train_loader, val_loader, tae, classifier, device, optimizer, optimize
                 running_loss = 0.0
                 running_loss_2 = 0.0
 
-        val_loss_min, val_loss_min_2 = validate(val_loader, tae, classifier, criterion, class_criterion, mask, epoch, num_epochs, val_loss_min, val_loss_min_2, save_path)
+        val_loss_min, val_loss_min_2 = validate(val_loader, tae, classifier, criterion, class_criterion, mask, epoch, num_epochs, val_loss_min, val_loss_min_2, save_path, model_name)
     return val_loss_min, val_loss_min_2

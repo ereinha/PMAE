@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import DataSet
+import json
 
 # Make 2-dimensional histogram
-def make_hist2d(group_num, group_size, step, inputs, outputs, scaler, event_type, lower=None, upper=None):
+def make_hist2d(group_num, group_size, step, names, inputs, outputs, scaler, event_type, file_path, lower=None, upper=None):
     inputs = scaler.inverse_transform(inputs)
     outputs = scaler.inverse_transform(outputs)
     if lower is None:
@@ -32,6 +33,7 @@ def make_hist2d(group_num, group_size, step, inputs, outputs, scaler, event_type
     plt.xlim(lower, upper)
     plt.ylim(lower, upper)
     plt.colorbar()
+    plt.savefig(file_path + '/hist2d_' + event_type)
     plt.show()
 
 # Custom loss function expects shape [batch_size, num_particles, 4] where 4 items are pt, eta, phi, b-tag
@@ -81,7 +83,7 @@ class DataLabelDataset(Dataset):
             self.data = data
             self.labels = labels
     def __getitem__(self, index):
-        return self.data[index], self.labels[index]
+        return self.config[index], self.labels[index]
 
     def __len__(self):
         return len(self.data)
@@ -136,3 +138,30 @@ class SGDWithSaturatingMomentumAndDecay(optim.Optimizer):
             # Increment momentum and decay learning rate after the step
             group['momentum'] = min(group['momentum'] + momentum_step, max_momentum)
             group['lr'] = max(group['lr'] * group['lr_decay'], group['min_lr'])
+
+def parse_model_name(str:model_name):
+    elements = model_name.split('_')[1:]  # remove the first 'Model' element
+
+    # Initialize an empty dictionary to hold the key-value pairs
+    json_dict = {}
+
+    # Parse the elements
+    for element in elements:
+        key, value = element[0], element[1:]
+
+        # Try converting values to float or int if possible, else leave them as string
+        try:
+            if '.' in value:
+                value = float(value)
+            else:
+                value = int(value)
+        except ValueError:
+            pass
+
+        # Construct the dictionary
+        json_dict[key] = value
+
+    # Convert the dictionary to a JSON string
+    json_string = json.dumps(json_dict, indent=4)
+
+    return json.loads(json_string)

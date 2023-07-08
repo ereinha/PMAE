@@ -2,7 +2,7 @@ import torch
 from masks import ParticleMask, KinematicMask
 
 # Validation loop
-def validate(val_loader, tae, classifier, device, criterion, class_criterion, mask, epoch, num_epochs, val_loss_min, val_loss_min_2, save_path):
+def validate(val_loader, tae, classifier, device, criterion, class_criterion, mask, epoch, num_epochs, val_loss_min, val_loss_min_2, save_path, model_name):
     # Validation loop
     tae.eval()  # Set the tae to evaluation mode
     classifier.eval()
