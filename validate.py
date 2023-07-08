@@ -1,8 +1,14 @@
 import torch
 from masks import ParticleMask, KinematicMask
+import json
 
 # Validation loop
 def validate(val_loader, tae, classifier, device, criterion, class_criterion, mask, epoch, num_epochs, val_loss_min, val_loss_min_2, save_path, model_name):
+    # Create a config checkpoint file
+    config = parse_model_name(model_name)
+    with open('./outputs/' + model_name + '/ckpt_config.json', 'w') as f:
+        json.dump(config, f, indent=4)
+
     # Validation loop
     tae.eval()  # Set the tae to evaluation mode
     classifier.eval()
@@ -63,4 +69,11 @@ def validate(val_loader, tae, classifier, device, criterion, class_criterion, ma
     if val_loss_mean_2 < val_loss_min_2:
         val_loss_min_2 = val_loss_mean_2
         torch.save(classifier.state_dict(), save_path + '/Classifier_best_' + model_name)
+
+    # Update the checkpoint file
+    with open('./outputs/' + model_name + '/ckpt_config.json', 'r') as f:
+        config = json.load(f)
+    config['resume_epoch'] = epoch
+    with open('./outputs/' + model_name + '/ckpt_config.json', 'w') as f:
+        json.dump(config, f, indent=4)
     return val_loss_min, val_loss_min_2

@@ -54,11 +54,11 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, tae, classifie
             plt.legend(loc='best')
             plt.show()
             try:
-                os.mkdir('./plots/' + model_name)
+                os.mkdir('./outputs/' + model_name)
             except:
-                print('./plots/' + model_name + ' Already Exists')
+                print('./outputs/' + model_name + ' Already Exists')
             
-            plt.savefig('./plots/' + model_name + '/')
+            plt.savefig('./outputs/' + model_name + '/')
 
             binary_preds = [1 if p > 0.5 else 0 for p in outputs_arr_2]
             acc = accuracy_score(test_labels, binary_preds)
@@ -70,13 +70,13 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, tae, classifie
             outputs_arr_tt = outputs_arr[test_labels==0]
 
             # Generate scatter plots
-            utils.make_hist2d(i, 4, 0, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './plots/' + model_name, lower=lower[0], upper=upper[0])
-            utils.make_hist2d(i, 4, 1, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './plots/' + model_name, lower=lower[1], upper=upper[1])
-            utils.make_hist2d(i, 4, 2, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './plots/' + model_name, lower=lower[2], upper=upper[2])
-            utils.make_hist2d(i, 4, 3, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './plots/' + model_name, lower=lower[3], upper=upper[3])
+            utils.make_hist2d(i, 4, 0, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './outputs/' + model_name, lower=lower[0], upper=upper[0])
+            utils.make_hist2d(i, 4, 1, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './outputs/' + model_name, lower=lower[1], upper=upper[1])
+            utils.make_hist2d(i, 4, 2, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './outputs/' + model_name, lower=lower[2], upper=upper[2])
+            utils.make_hist2d(i, 4, 3, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './outputs/' + model_name, lower=lower[3], upper=upper[3])
 
             # Generate scatter plots
-            utils.make_hist2d(i, 4, 0, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './plots/' + model_name, lower=lower[0], upper=upper[0])
-            utils.make_hist2d(i, 4, 1, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './plots/' + model_name, lower=lower[1], upper=upper[1])
-            utils.make_hist2d(i, 4, 2, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './plots/' + model_name, lower=lower[2], upper=upper[2])
-            utils.make_hist2d(i, 4, 3, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './plots/' + model_name, lower=lower[3], upper=upper[3])
+            utils.make_hist2d(i, 4, 0, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './outputs/' + model_name, lower=lower[0], upper=upper[0])
+            utils.make_hist2d(i, 4, 1, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './outputs/' + model_name, lower=lower[1], upper=upper[1])
+            utils.make_hist2d(i, 4, 2, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './outputs/' + model_name, lower=lower[2], upper=upper[2])
+            utils.make_hist2d(i, 4, 3, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './outputs/' + model_name, lower=lower[3], upper=upper[3])

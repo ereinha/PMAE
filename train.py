@@ -4,6 +4,12 @@ from masks import ParticleMask, KinematicMask
 from argparse import ArgumentParser
 
 def train(train_loader, val_loader, tae, classifier, device, optimizer, optimizer_2, criterion, class_criterion, mask=None, num_epochs:int=50, val_loss_min:int=999, val_loss_min_2:int=999, save_path:str='./saved_models', model_name:str=''):
+    # Create an outputs folder to store config files
+    try:
+        os.mkdir('./outputs/' + model_name)
+    except:
+        print('./outputs/' + model_name + ' Already Exists')
+        
     for epoch in range(num_epochs):
         tae.train()
         classifier.train()
