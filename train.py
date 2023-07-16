@@ -20,8 +20,6 @@ def train(train_loader, val_loader, tae, classifier, device, optimizer, optimize
             inputs, labels = batch
             inputs = inputs.to(device)
             labels = labels.to(device)
-
-            # Apply particle mask
             if mask is not None:
                 if mask == 0:
                     mask_layer = ParticleMask(4)
@@ -34,11 +32,12 @@ def train(train_loader, val_loader, tae, classifier, device, optimizer, optimize
             optimizer_2.zero_grad()
 
             # Forward pass
-            outputs = tae(masked_inputs, masked_inputs)
+            outputs = tae(masked_inputs)
 
-            # Reshape tensors
             outputs = torch.reshape(outputs, (outputs.size(0),
                                               outputs.size(1) * outputs.size(2)))
+            outputs = torch.cat((outputs[:,:4], outputs[:,5:]), axis=1)
+
             flat_masked_inputs = torch.reshape(masked_inputs, (masked_inputs.size(0),
                                                                masked_inputs.size(1) * masked_inputs.size(2)))
 
@@ -57,19 +56,20 @@ def train(train_loader, val_loader, tae, classifier, device, optimizer, optimize
             # Zero the gradients
             optimizer.zero_grad()
 
-            if (labels == 1).any():
-              trimmed_masked_inputs = masked_inputs[labels == 1]
-              trimmed_outputs = tae(trimmed_masked_inputs, trimmed_masked_inputs)
-              trimmed_outputs = torch.reshape(trimmed_outputs, (trimmed_outputs.size(0),
-                                                                trimmed_outputs.size(1) * trimmed_outputs.size(2)))
-              trimmed_inputs = inputs[labels == 1]
-              trimmed_inputs = torch.reshape(trimmed_inputs, (trimmed_inputs.size(0),
-                                                              trimmed_inputs.size(1) * trimmed_inputs.size(2)))
-              loss = criterion(trimmed_outputs, trimmed_inputs, zero_padded=[3,5,7])
-            else:
-              loss = torch.zeros(1)
-
             # Calculate the loss
+            if (labels == 1).any():
+                trimmed_masked_inputs = masked_inputs[labels == 1]
+                trimmed_outputs = tae(trimmed_masked_inputs)
+                trimmed_outputs = torch.reshape(trimmed_outputs, (trimmed_outputs.size(0),
+                                                                  trimmed_outputs.size(1) * trimmed_outputs.size(2)))
+                trimmed_inputs = inputs[labels == 1]
+                trimmed_inputs = trimmed_inputs[:,:,:-1]
+                trimmed_inputs = torch.reshape(trimmed_inputs, (trimmed_inputs.size(0),
+                                                                trimmed_inputs.size(1) * trimmed_inputs.size(2)))
+
+                loss = criterion(trimmed_outputs, trimmed_inputs, zero_padded=[4])
+            else:
+                loss = torch.zeros(1)
 
             # Backward pass
             loss.backward()
@@ -87,5 +87,5 @@ def train(train_loader, val_loader, tae, classifier, device, optimizer, optimize
                 running_loss = 0.0
                 running_loss_2 = 0.0
 
-        val_loss_min, val_loss_min_2 = validate(val_loader, tae, classifier, criterion, class_criterion, mask, epoch, num_epochs, val_loss_min, val_loss_min_2, save_path, model_name)
+        val_loss_min, val_loss_min_2 = validate(val_loader, tae, classifier, criterion, class_criterion, mask, epoch, num_epochs, val_loss_min, val_loss_min_2)
     return val_loss_min, val_loss_min_2

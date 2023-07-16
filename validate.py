@@ -30,27 +30,27 @@ def validate(val_loader, tae, classifier, device, criterion, class_criterion, ma
 
             if (val_labels == 1).any():
               trimmed_masked_val_inputs = masked_val_inputs[val_labels == 1]
-              trimmed_val_outputs = tae(trimmed_masked_val_inputs, trimmed_masked_val_inputs)
+              trimmed_val_outputs = tae(trimmed_masked_val_inputs)
               trimmed_val_outputs = torch.reshape(trimmed_val_outputs, (trimmed_val_outputs.size(0),
                                                                         trimmed_val_outputs.size(1) * trimmed_val_outputs.size(2)))
               trimmed_val_inputs = val_inputs[val_labels == 1]
+              trimmed_val_inputs = trimmed_val_inputs[:,:,:-1]
               trimmed_val_inputs = torch.reshape(trimmed_val_inputs, (trimmed_val_inputs.size(0),
                                                                       trimmed_val_inputs.size(1) * trimmed_val_inputs.size(2)))
-              val_loss = criterion(trimmed_val_outputs, trimmed_val_inputs, zero_padded=[3,5,7])
+              val_loss = criterion(trimmed_val_outputs, trimmed_val_inputs, zero_padded=[4])
               val_losses.append(val_loss.item())
             else:
               val_losses.append(0)
 
             # Forward pass
-            val_outputs = tae(masked_val_inputs, masked_val_inputs)
-
-            # Reshape tensors
+            val_outputs = tae(masked_val_inputs)
             val_outputs = torch.reshape(val_outputs, (val_outputs.size(0),
                                                       val_outputs.size(1) * val_outputs.size(2)))
+            val_outputs = torch.cat((val_outputs[:,:4], val_outputs[:,5:]), axis=1)
+
             masked_val_inputs = torch.reshape(masked_val_inputs, (masked_val_inputs.size(0),
                                                                   masked_val_inputs.size(1) * masked_val_inputs.size(2)))
 
-            # Forward pass for classifier
             val_outputs_2 = classifier(torch.cat((val_outputs, masked_val_inputs), axis=1)).squeeze(1)
 
             val_loss_2 = class_criterion(val_outputs_2, val_labels.float())

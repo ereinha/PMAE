@@ -12,8 +12,9 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, tae, classifie
     outputs_arrays = np.zeros((X_test_arr.shape[0], X_test_arr.shape[1], 6))
     X_test_arr_tensor = torch.tensor(X_test_arr)
     with torch.no_grad():
+        all_preds = []
         for i in range(6):
-            outputs_arr = torch.zeros_like(X_test_arr_tensor)
+            outputs_arr = torch.zeros(X_test_arr_tensor.size(0), X_test_arr_tensor.size(1)-7)
             outputs_arr_2 = torch.zeros(X_test_arr_tensor.size(0))
             for batch_idx, batch in enumerate(loader):
                 # Move the data to the device
@@ -29,18 +30,22 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, tae, classifie
                     masked_inputs = mask_layer(inputs)
 
                 # Forward pass
-                outputs = tae(masked_inputs, masked_inputs)
+                outputs = tae(masked_inputs)
                 outputs = torch.reshape(outputs, (outputs.size(0),
                                                     outputs.size(1) * outputs.size(2)))
+                outputs = torch.cat((outputs[:,:4], outputs[:,5:]), axis=1)
+
                 masked_inputs = torch.reshape(masked_inputs, (masked_inputs.size(0),
                                                                 masked_inputs.size(1) * masked_inputs.size(2)))
                 outputs_2 = classifier(torch.cat((outputs, masked_inputs), axis=1)).squeeze(1)
 
-                outputs[:,4] = 0
                 outputs_arr[batch_idx*test_batch_size:(batch_idx+1)*test_batch_size] = outputs
                 outputs_arr_2[batch_idx*test_batch_size:(batch_idx+1)*test_batch_size] = outputs_2
 
             outputs_arr = outputs_arr.cpu().numpy()
+            outputs_arr = np.insert(outputs_arr, obj=np.s_[4:5], values=0, axis=-1)
+            outputs_arr = np.insert(outputs_arr, obj=np.s_[3::3], values=0, axis=-1)
+            outputs_arr = np.append(outputs_arr, np.zeros((outputs_arr.shape[0], 1)), axis=-1)
             outputs_arr_2 = outputs_arr_2.cpu().numpy()
 
             fpr, tpr, _ = roc_curve(test_labels, outputs_arr_2)
@@ -53,6 +58,9 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, tae, classifie
             plt.title('ROC curve masked ' + masked_parts[i])
             plt.legend(loc='best')
             plt.show()
+            binary_preds = [1 if p > 0.5 else 0 for p in outputs_arr_2]
+            acc = accuracy_score(test_labels, binary_preds)
+            print('Classification Accuracy (masked ', masked_parts[i], '): ', acc)
             try:
                 os.mkdir('./outputs/' + model_name)
             except:

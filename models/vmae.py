@@ -66,7 +66,7 @@ class CustomTransformer(nn.Transformer):
             self.decoder.layers[i].linear2.activation = self._activation_fn
 
 
-# Transformer autoencoder
+# Transformer Autoencoder
 class TransformerAutoencoder(nn.Module):
     def __init__(self, d_model, num_heads, num_layers, d_ff, max_seq_len, dropout, device):
         super(TransformerAutoencoder, self).__init__()
@@ -81,12 +81,13 @@ class TransformerAutoencoder(nn.Module):
         self.pos_enc = PositionalEncoding(d_model, max_seq_len, base=100)
         self.custom_act = CustomActivationFunction()
         self.dense = nn.Linear(d_model, 128)
-        self.output = nn.Linear(128, 4)
+        self.output = nn.Linear(128, 3)
 
-    def forward(self, src, tgt):
+    def forward(self, src):
         src_mask = (src[:,:,0] == 0)
         src = self.embedding(src)
-        tgt = self.embedding(tgt)
+        tgt = self.trans.encoder(src, src_key_padding_mask=src_mask)
+        # tgt = self.embedding(tgt)
         src = self.pos_enc(src)
-        tgt = self.pos_enc(tgt)
-        return self.output(self.custom_act(self.dense(self.trans(src, tgt, src_key_padding_mask=src_mask))))
+        # tgt = self.pos_enc(tgt)
+        return self.output(self.custom_act(self.dense(self.trans.decoder(src, tgt, tgt_key_padding_mask=src_mask))))

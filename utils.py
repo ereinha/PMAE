@@ -36,7 +36,7 @@ def make_hist2d(group_num, group_size, step, names, inputs, outputs, scaler, eve
     plt.savefig(file_path + '/hist2d_' + event_type)
     plt.show()
 
-# Custom loss function expects shape [batch_size, num_particles, 4] where 4 items are pt, eta, phi, b-tag
+# Custom loss function expects shape [batch_size, num_particles, 3] where 3 items are pt, eta, phi
 class custom_loss(LossFunction):
     def __init__(self, phi_limit, alpha=0.4, beta=.5, gamma=1.):
         self.phi_limit = phi_limit
@@ -52,13 +52,13 @@ class custom_loss(LossFunction):
                 continue
             elif i in self.zero_padded:
                 continue
-            elif i % 4 == 0:
+            elif i % 3 == 0:
                 loss += torch.mean((target[:,i] - output[:,i])**2 + torch.gt(output[:,i], lower_pt_limit[(i + 3) % 4]).long() * \
                     (self.gamma / (1 + torch.exp(-(output[:,i] - lower_pt_limit[(i + 3) % 4]) * 3)) - self.gamma) + \
                         torch.le(output[:,i], lower_pt_limit[(i + 3) % 4]).long()*(self.gamma/2 - self.gamma))
-            elif i % 4 == 1:
+            elif i % 3 == 1:
                 loss += torch.mean((target[:,i] - output[:,i])**2 - output[:,i]**2 * self.beta)
-            elif i % 4 == 2:
+            elif i % 3 == 2:
                 loss += torch.mean(torch.le(torch.abs(output[:,i]), self.phi_limit).long() *\
                     ((torch.sin(((output[:,i] - target[:,i]) / self.phi_limit - .5) * 3.14159265) + 1)**2 +\
                         (torch.sin(((output[:,i] - target[:,i]) / self.phi_limit - .5) * 3.14159265) + 1) * 2) * self.alpha +\
@@ -68,8 +68,6 @@ class custom_loss(LossFunction):
                         (torch.sin(((self.phi_limit * torch.sign(output[:,i]) - target[:,i]) / self.phi_limit  - .5) * \
                                 3.14159265) + 1) * 2) * self.alpha +\
                     (self.phi_limit*torch.sign(output[:,i]) - output[:,i])**2))
-            elif i % 4 == 3:
-                loss += torch.mean((target[:,i] - output[:,i])**2)
         return loss / (output.size()[1] - len(self.zero_padded) - len(self.loss_mask))
 
 # Dataset class
