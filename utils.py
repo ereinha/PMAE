@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from torch.utils.data import DataSet
+from torch.utils.data import Dataset
 import json
 
 # Make 2-dimensional histogram
