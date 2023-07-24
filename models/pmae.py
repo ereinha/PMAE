@@ -1,6 +1,6 @@
 from models.shared_layers import CustomActivationFunction
 import torch
-from torch import nn
+from torch import nn, Tensor
 
 # Linear Embedding
 class LinearEmbedding(nn.Module):
