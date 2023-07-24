@@ -3,7 +3,7 @@
     "num_heads": 4,
     "num_layers": 2,
     "d_ff": 400,
-    "dropout": 0,
+    "dropout": 0.03,
     "batch_size": 512,
     "test_batch_size": 4096,
     "resume_epoch": 0,
