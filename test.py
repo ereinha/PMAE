@@ -1,5 +1,5 @@
 import torch
-from masks import SpecificParticleMask, KinematicMask
+from models.masks import SpecificParticleMask, KinematicMask
 import utils
 from sklearn.metrics import roc_curve, auc, accuracy_score
 import os

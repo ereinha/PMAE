@@ -1,5 +1,5 @@
 import torch
-from masks import ParticleMask, KinematicMask
+from models.masks import ParticleMask, KinematicMask
 import json
 
 # Validation loop
