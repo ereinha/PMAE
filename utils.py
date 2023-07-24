@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import DataSet
+from torch.utils.data import DataSet
 import json
 
 # Make 2-dimensional histogram
@@ -36,7 +36,7 @@ def make_hist2d(group_num, group_size, step, names, inputs, outputs, scaler, eve
     plt.savefig(file_path + '/hist2d_' + event_type)
     plt.show()
 
-# Custom loss function expects shape [batch_size, num_particles, 3] where 3 items are pt, eta, phi
+# Custom loss function expects shape [batch_size, num_particles, 4] where 3 items are pt, eta, phi, b-tag
 class custom_loss:
     def __init__(self, phi_limit, alpha=0.4, beta=.5, gamma=1., delta=.5, output_vars=3):
         self.phi_limit = phi_limit
