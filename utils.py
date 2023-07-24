@@ -40,8 +40,9 @@ def make_hist2d(group_num, group_size, step, names, inputs, outputs, scaler, eve
 
 # Custom loss function expects shape [batch_size, num_particles, 4] where 3 items are pt, eta, phi, b-tag
 class custom_loss:
-    def __init__(self, phi_limit, alpha=0.4, beta=.5, gamma=1., delta=.5, output_vars=3):
+    def __init__(self, phi_limit, lower_pt_limit, alpha=0.4, beta=.5, gamma=1., delta=.5, output_vars=3):
         self.phi_limit = phi_limit
+        self.lower_pt_limit = lower_pt_limit
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
@@ -53,9 +54,9 @@ class custom_loss:
             if i in zero_padded:
                 continue
             elif i % self.vars == 0:
-                loss += torch.mean((target[:,i] - output[:,i])**2 + torch.gt(output[:,i], lower_pt_limit[i % 4]).long() * \
-                    (self.gamma / (1 + torch.exp(-(output[:,i] - lower_pt_limit[i % 4]) * 3)) - self.gamma) + \
-                        torch.le(output[:,i], lower_pt_limit[i % 4]).long()*(self.gamma/2 - self.gamma))
+                loss += torch.mean((target[:,i] - output[:,i])**2 + torch.gt(output[:,i], self.lower_pt_limit[i % 4]).long() * \
+                    (self.gamma / (1 + torch.exp(-(output[:,i] - self.lower_pt_limit[i % 4]) * 3)) - self.gamma) + \
+                        torch.le(output[:,i], self.lower_pt_limit[i % 4]).long()*(self.gamma/2 - self.gamma))
             elif i % self.vars == 1:
                 loss += torch.mean((target[:,i] - output[:,i])**2 - output[:,i]**2 * self.beta)
             elif i % self.vars == 2:
