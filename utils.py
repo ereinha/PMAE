@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from torch.utils.data import Dataset
 import json
+from torch import optim
+import torch
 
 # Make 2-dimensional histogram
 def make_hist2d(group_num, group_size, step, names, inputs, outputs, scaler, event_type, file_path, lower=None, upper=None):
