@@ -142,7 +142,7 @@ class SGDWithSaturatingMomentumAndDecay(optim.Optimizer):
             group['momentum'] = min(group['momentum'] + momentum_step, max_momentum)
             group['lr'] = max(group['lr'] * group['lr_decay'], group['min_lr'])
 
-def parse_model_name(str:model_name):
+def parse_model_name(model_name : str):
     elements = model_name.split('_')[1:]  # remove the first 'Model' element
 
     # Initialize an empty dictionary to hold the key-value pairs
