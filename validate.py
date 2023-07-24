@@ -3,7 +3,7 @@ from masks import ParticleMask, KinematicMask
 import json
 
 # Validation loop
-def validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name:
+def validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name):
     # Create a config checkpoint file
     config = parse_model_name(model_name)
     with open('./outputs/' + model_name + '/ckpt_config.json', 'w') as f:
