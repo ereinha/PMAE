@@ -1,4 +1,4 @@
-from shared_layers import CustomActivationFunction
+from models.shared_layers import CustomActivationFunction
 import torch
 from torch import nn
 

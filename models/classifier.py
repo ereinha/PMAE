@@ -1,5 +1,5 @@
 from torch import nn
-from shared_layers import CustomActivationFunction
+from models.shared_layers import CustomActivationFunction
 
 # Simple binary classifier
 class BinaryClassifier(nn.Module):
