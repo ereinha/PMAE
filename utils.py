@@ -37,38 +37,41 @@ def make_hist2d(group_num, group_size, step, names, inputs, outputs, scaler, eve
     plt.show()
 
 # Custom loss function expects shape [batch_size, num_particles, 3] where 3 items are pt, eta, phi
-class custom_loss(LossFunction):
-    def __init__(self, phi_limit, alpha=0.4, beta=.5, gamma=1.):
+class custom_loss:
+    def __init__(self, phi_limit, alpha=0.4, beta=.5, gamma=1., delta=.5, output_vars=3):
         self.phi_limit = phi_limit
         self.alpha = alpha
         self.beta = beta
         self.gamma = gamma
-        self.loss_mask = loss_mask
-        self.zero_padded = zero_padded
-    def compute_loss(self, output, target, loss_mask=[], zero_padded=[]):
+        self.delta = delta
+        self.vars = output_vars
+    def compute_loss(self, output, target, zero_padded=[]):
         loss = 0
         for i in range(output.size()[1]):
-            if i in (self.loss_mask):
+            if i in zero_padded:
                 continue
-            elif i in self.zero_padded:
-                continue
-            elif i % 3 == 0:
-                loss += torch.mean((target[:,i] - output[:,i])**2 + torch.gt(output[:,i], lower_pt_limit[(i + 3) % 4]).long() * \
-                    (self.gamma / (1 + torch.exp(-(output[:,i] - lower_pt_limit[(i + 3) % 4]) * 3)) - self.gamma) + \
-                        torch.le(output[:,i], lower_pt_limit[(i + 3) % 4]).long()*(self.gamma/2 - self.gamma))
-            elif i % 3 == 1:
+            elif i % self.vars == 0:
+                loss += torch.mean((target[:,i] - output[:,i])**2 + torch.gt(output[:,i], lower_pt_limit[i % 4]).long() * \
+                    (self.gamma / (1 + torch.exp(-(output[:,i] - lower_pt_limit[i % 4]) * 3)) - self.gamma) + \
+                        torch.le(output[:,i], lower_pt_limit[i % 4]).long()*(self.gamma/2 - self.gamma))
+            elif i % self.vars == 1:
                 loss += torch.mean((target[:,i] - output[:,i])**2 - output[:,i]**2 * self.beta)
-            elif i % 3 == 2:
+            elif i % self.vars == 2:
                 loss += torch.mean(torch.le(torch.abs(output[:,i]), self.phi_limit).long() *\
-                    ((torch.sin(((output[:,i] - target[:,i]) / self.phi_limit - .5) * 3.14159265) + 1)**2 +\
-                        (torch.sin(((output[:,i] - target[:,i]) / self.phi_limit - .5) * 3.14159265) + 1) * 2) * self.alpha +\
+                    ((torch.sin(((output[:,i] - target[:,i]) / self.phi_limit - .5) * np.pi) + 1)**2 +\
+                        (torch.sin(((output[:,i] - target[:,i]) / self.phi_limit - .5) * np.pi) + 1) * 2) * self.alpha +\
                     torch.gt(torch.abs(output[:,i]), self.phi_limit).long() *\
                     (((torch.sin(((self.phi_limit * torch.sign(output[:,i]) - target[:,i]) / self.phi_limit  - .5) * \
-                                    3.14159265) + 1)**2 +\
+                                    np.pi) + 1)**2 +\
                         (torch.sin(((self.phi_limit * torch.sign(output[:,i]) - target[:,i]) / self.phi_limit  - .5) * \
-                                3.14159265) + 1) * 2) * self.alpha +\
+                                np.pi) + 1) * 2) * self.alpha +\
                     (self.phi_limit*torch.sign(output[:,i]) - output[:,i])**2))
-        return loss / (output.size()[1] - len(self.zero_padded) - len(self.loss_mask))
+            elif i % self.vars == 3:
+                if self.vars == 4:
+                    loss += torch.mean((target[:,i] - output[:,i])**2) * self.delta
+                else:
+                    continue
+        return loss / (output.size()[1] - len(zero_padded))
 
 # Dataset class
 class DataLabelDataset(Dataset):

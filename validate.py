@@ -3,77 +3,161 @@ from masks import ParticleMask, KinematicMask
 import json
 
 # Validation loop
-def validate(val_loader, tae, classifier, device, criterion, class_criterion, mask, epoch, num_epochs, val_loss_min, val_loss_min_2, save_path, model_name):
+def validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name:
     # Create a config checkpoint file
     config = parse_model_name(model_name)
     with open('./outputs/' + model_name + '/ckpt_config.json', 'w') as f:
         json.dump(config, f, indent=4)
 
-    # Validation loop
-    tae.eval()  # Set the tae to evaluation mode
-    classifier.eval()
-    val_losses = []
-    val_losses_2 = []
-    with torch.no_grad():  # Disable gradient calculations
-        for val_batch in val_loader:
-            # Move the data to the device
-            val_inputs, val_labels = val_batch
-            val_inputs = val_inputs.to(device)
-            val_labels = val_labels.to(device)
-            if mask is not None:
-                if mask == 0:
-                    mask_layer = ParticleMask(4)
-                else:
-                    mask_layer = KinematicMask(mask)
-                # Mask input data
-                masked_val_inputs = mask_layer(val_inputs)
+    if model_type == 'autoencoder':
+        tae = models[0]
+        tae.eval()  # Set the tae to evaluation mode
+        losses = []
+        with torch.no_grad():  # Disable gradient calculations
+            for val_batch in val_loader:
+                # Move the data to the device
+                inputs, _ = val_batch
+                inputs = inputs.to(device)
+                if mask is not None:
+                    if mask == 0:
+                        mask_layer = ParticleMask(4)
+                    else:
+                        mask_layer = KinematicMask(mask)
+                    # Mask input data
+                    masked_inputs = mask_layer(inputs)
 
-            if (val_labels == 1).any():
-              trimmed_masked_val_inputs = masked_val_inputs[val_labels == 1]
-              trimmed_val_outputs = tae(trimmed_masked_val_inputs)
-              trimmed_val_outputs = torch.reshape(trimmed_val_outputs, (trimmed_val_outputs.size(0),
-                                                                        trimmed_val_outputs.size(1) * trimmed_val_outputs.size(2)))
-              trimmed_val_inputs = val_inputs[val_labels == 1]
-              trimmed_val_inputs = trimmed_val_inputs[:,:,:-1]
-              trimmed_val_inputs = torch.reshape(trimmed_val_inputs, (trimmed_val_inputs.size(0),
-                                                                      trimmed_val_inputs.size(1) * trimmed_val_inputs.size(2)))
-              val_loss = criterion(trimmed_val_outputs, trimmed_val_inputs, zero_padded=[4])
-              val_losses.append(val_loss.item())
-            else:
-              val_losses.append(0)
+                # Forward pass
+                outputs = tae(masked_inputs)
+                outputs = torch.reshape(outputs, (outputs.size(0),
+                                                  outputs.size(1) * outputs.size(2)))
 
-            # Forward pass
-            val_outputs = tae(masked_val_inputs)
-            val_outputs = torch.reshape(val_outputs, (val_outputs.size(0),
-                                                      val_outputs.size(1) * val_outputs.size(2)))
-            val_outputs = torch.cat((val_outputs[:,:4], val_outputs[:,5:]), axis=1)
+                if output_vars == 3:
+                    inputs = inputs[:,:,:-1]
+                    inputs = torch.reshape(inputs, (inputs.size(0),
+                                                    inputs.size(1) * inputs.size(2)))
+                    loss = criterion.compute_loss(outputs, inputs, zero_padded=[4])
+                elif output_vars == 4:
+                    inputs = torch.reshape(inputs, (inputs.size(0),
+                                                    inputs.size(1) * inputs.size(2)))
+                    loss = criterion.compute_loss(outputs, inputs, zero_padded=[3,5,7])
 
-            masked_val_inputs = torch.reshape(masked_val_inputs, (masked_val_inputs.size(0),
-                                                                  masked_val_inputs.size(1) * masked_val_inputs.size(2)))
+                losses.append(loss.item())
 
-            val_outputs_2 = classifier(torch.cat((val_outputs, masked_val_inputs), axis=1)).squeeze(1)
+        loss_mean = sum(losses) / len(losses)
 
-            val_loss_2 = class_criterion(val_outputs_2, val_labels.float())
-            val_losses_2.append(val_loss_2.item())
+        print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {loss_mean:.4f}")
+        
+        # Save files if better than best performance
+        if val_loss_mean < val_loss_min:
+            val_loss_min = val_loss_mean
+            torch.save(tae.state_dict(), save_path + '/TAE_best_' + model_name)
 
-    val_loss_mean = sum(val_losses) / len(val_losses)
-    val_loss_mean_2 = sum(val_losses_2) / len(val_losses_2)
+        # Update the checkpoint file
+        with open('./outputs/' + model_name + '/ckpt_config.json', 'r') as f:
+            config = json.load(f)
+        config['resume_epoch'] = epoch
+        with open('./outputs/' + model_name + '/ckpt_config.json', 'w') as f:
+            json.dump(config, f, indent=4)
+        return val_loss_min, val_loss_min_2
 
-    # Print total loss for the epoch
-    print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {val_loss_mean:.4f}, Val Class Loss: {val_loss_mean_2:.4f}")
+    elif model_type == 'classifier partial':
+        tae, classifier = models[0], models[1]
+        # Validation loop
+        tae.eval()  # Set the tae to evaluation mode
+        classifier.eval()
+        val_losses = []
+        with torch.no_grad():  # Disable gradient calculations
+            for val_batch in val_loader:
+                # Move the data to the device
+                inputs, labels = val_batch
+                inputs = inputs.to(device)
+                labels = labels.to(device)
+                if mask is not None:
+                    if mask == 0:
+                        mask_layer = ParticleMask(4)
+                    else:
+                        mask_layer = KinematicMask(mask)
+                    # Mask input data
+                    masked_inputs = mask_layer(inputs)
 
-    # Save files if better than best performance
-    if val_loss_mean < val_loss_min:
-        val_loss_min = val_loss_mean
-        torch.save(tae.state_dict(), save_path + '/TAE_best_' + model_name)
-    if val_loss_mean_2 < val_loss_min_2:
-        val_loss_min_2 = val_loss_mean_2
-        torch.save(classifier.state_dict(), save_path + '/Classifier_best_' + model_name)
+                with torch.no_grad():
+                    # Forward pass
+                    outputs = tae(masked_inputs)
+                    outputs = torch.reshape(outputs, (outputs.size(0),
+                                                      outputs.size(1) * outputs.size(2)))
 
-    # Update the checkpoint file
-    with open('./outputs/' + model_name + '/ckpt_config.json', 'r') as f:
-        config = json.load(f)
-    config['resume_epoch'] = epoch
-    with open('./outputs/' + model_name + '/ckpt_config.json', 'w') as f:
-        json.dump(config, f, indent=4)
-    return val_loss_min, val_loss_min_2
+                masked_inputs = torch.reshape(masked_inputs, (masked_inputs.size(0),
+                                                              masked_inputs.size(1) * masked_inputs.size(2)))
+
+                outputs_2 = classifier(torch.cat((outputs, masked_inputs), axis=1)).squeeze(1)
+
+                val_loss = criterion(outputs_2, labels.float())
+                val_losses.append(val_loss.item())
+
+        val_loss_mean = sum(val_losses) / len(val_losses)
+
+        print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {val_loss_mean:.4f}")
+        
+        # Save files if better than best performance
+        if val_loss_mean < val_loss_min:
+            val_loss_min = val_loss_mean
+            torch.save(tae.state_dict(), save_path + '/Classifier_partial_best_' + model_name)
+
+        # Update the checkpoint file
+        with open('./outputs/' + model_name + '/ckpt_config.json', 'r') as f:
+            config = json.load(f)
+        config['resume_epoch'] = epoch
+        with open('./outputs/' + model_name + '/ckpt_config.json', 'w') as f:
+            json.dump(config, f, indent=4)
+        return val_loss_min, val_loss_min_2
+
+    elif model_type == 'classifier full':
+        tae, classifier = models[0], models[1]
+        # Validation loop
+        tae.eval()  # Set the tae to evaluation mode
+        classifier.eval()
+        val_losses = []
+        with torch.no_grad():  # Disable gradient calculations
+            for val_batch in val_loader:
+                # Move the data to the device
+                inputs, labels = val_batch
+                inputs = inputs.to(device)
+                labels = labels.to(device)
+                if mask is not None:
+                    if mask == 0:
+                        mask_layer = ParticleMask(4)
+                    else:
+                        mask_layer = KinematicMask(mask)
+                    # Mask input data
+                    masked_inputs = mask_layer(inputs)
+
+                with torch.no_grad():
+                    # Forward pass
+                    outputs = tae(masked_inputs)
+                    outputs = torch.reshape(outputs, (outputs.size(0),
+                                                      outputs.size(1) * outputs.size(2)))
+
+                inputs = torch.reshape(inputs, (inputs.size(0),
+                                                inputs.size(1) * inputs.size(2)))
+
+                outputs_2 = classifier(torch.cat((outputs, inputs), axis=1)).squeeze(1)
+
+                val_loss = criterion(outputs_2, labels.float())
+                val_losses.append(val_loss.item())
+
+        val_loss_mean = sum(val_losses) / len(val_losses)
+
+        print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {val_loss_mean:.4f}")
+        
+        # Save files if better than best performance
+        if val_loss_mean < val_loss_min:
+            val_loss_min = val_loss_mean
+            torch.save(tae.state_dict(), save_path + '/Classifier_full_best_' + model_name)
+
+        # Update the checkpoint file
+        with open('./outputs/' + model_name + '/ckpt_config.json', 'r') as f:
+            config = json.load(f)
+        config['resume_epoch'] = epoch
+        with open('./outputs/' + model_name + '/ckpt_config.json', 'w') as f:
+            json.dump(config, f, indent=4)
+        return val_loss_min, val_loss_min_2
