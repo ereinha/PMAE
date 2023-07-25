@@ -200,7 +200,4 @@ def parse_model_name(model_name):
             # Remove the processed part from the model name
             model_name = model_name[end+1:]
 
-    # Convert the dictionary to a JSON string
-    json_string = json.dumps(data, indent=4)
-
-    return json_string
+    return data
