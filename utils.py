@@ -148,7 +148,7 @@ def parse_model_name(model_name):
 
     # A dictionary to map from the keys in the model name to the keys in the JSON
     key_map = {
-        "D": "d_model",
+        "DM": "d_model",
         "H": "num_heads",
         "L": "num_layers",
         "F": "d_ff",
