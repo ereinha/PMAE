@@ -126,17 +126,19 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                 inputs, labels = batch
                 inputs = inputs.to(device)
                 labels = labels.to(device)
-                if mask is not None:
-                    if mask == 0:
-                        mask_layer = ParticleMask(4)
-                    else:
-                        mask_layer = KinematicMask(mask)
-                    # Mask input data
-                    masked_inputs = mask_layer(inputs)
-
                 with torch.no_grad():
-                    # Forward pass for autoencoder
-                    outputs = tae(masked_inputs)
+                    outputs = torch.zeros(inputs.size(0), 6, output_vars)
+                    for i in range(6):
+                        if mask is not None:
+                            if mask == 0:
+                                mask_layer = SpecificParticleMask(4, i)
+                            else:
+                                mask_layer = KinematicMask(mask)
+                            # Mask input data
+                            masked_inputs = mask_layer(inputs)
+                        # Forward pass for autoencoder
+                        temp_outputs = tae(masked_inputs)
+                        outputs[:,i,:] = temp_outputs[:,i,:]                    
 
                     outputs = torch.reshape(outputs, (outputs.size(0),
                                                       outputs.size(1) * outputs.size(2)))
