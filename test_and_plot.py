@@ -3,6 +3,8 @@ from models.masks import SpecificParticleMask, KinematicMask
 import utils
 from sklearn.metrics import roc_curve, auc, accuracy_score
 import os
+import numpy as np
+import matplotlib.pyplot as plt
 
 # Test loop
 def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device, mask, scaler, output_vars, information, model_name, lower=[0,-3.2,-1.6,0], upper=[4,3.2,1.6,1]):
@@ -60,12 +62,8 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                 binary_preds = [1 if p > 0.5 else 0 for p in outputs_arr_2]
                 acc = accuracy_score(test_labels, binary_preds)
                 print('Classification Accuracy (masked ', masked_parts[i], '): ', acc)
-                try:
-                    os.mkdir('./outputs/' + model_name)
-                except:
-                    print('./outputs/' + model_name + ' Already Exists')
                 
-                plt.savefig('./outputs/' + model_name + '/ROC_AUC_' + i)
+                plt.savefig('./outputs/' + model_name + '/ROC_AUC_partial_' + masked_parts[i])
 
                 X_test_arr_hh = X_test_arr[test_labels==1]
                 X_test_arr_tt = X_test_arr[test_labels==0]
@@ -133,12 +131,8 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                 binary_preds = [1 if p > 0.5 else 0 for p in outputs_arr_2]
                 acc = accuracy_score(test_labels, binary_preds)
                 print('Classification Accuracy (masked ', masked_parts[i], '): ', acc)
-                try:
-                    os.mkdir('./outputs/' + model_name)
-                except:
-                    print('./outputs/' + model_name + ' Already Exists')
                 
-                plt.savefig('./outputs/' + model_name + '/ROC_AUC_' + i)
+                plt.savefig('./outputs/' + model_name + '/ROC_AUC_full_' + masked_parts[i])
 
                 X_test_arr_hh = X_test_arr[test_labels==1]
                 X_test_arr_tt = X_test_arr[test_labels==0]
