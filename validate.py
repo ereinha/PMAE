@@ -1,5 +1,5 @@
 import torch
-from models.masks import ParticleMask, KinematicMask
+from models.masks import ParticleMask, SpecificParticleMask, KinematicMask
 import json
 from utils import parse_model_name
 import os

@@ -1,6 +1,6 @@
 import torch
 from validate import validate
-from models.masks import ParticleMask, KinematicMask
+from models.masks import ParticleMask, SpecificParticleMask, KinematicMask
 from argparse import ArgumentParser
 import os
 
