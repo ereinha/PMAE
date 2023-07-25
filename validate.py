@@ -8,7 +8,6 @@ import os
 def validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name):
     # Create a config checkpoint file
     config = parse_model_name(model_name)
-
     if model_type == 'autoencoder':
         dir_name = './outputs/' + model_name
         if not os.path.exists(dir_name):
@@ -111,7 +110,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         # Save files if better than best performance
         if loss_mean < val_loss_min:
             val_loss_min = loss_mean
-            torch.save(tae.state_dict(), save_path + '/Classifier_partial_best_' + model_name)
+            torch.save(classifier.state_dict(), save_path + '/Classifier_partial_best_' + model_name)
 
         # Update the checkpoint file
         with open('./outputs/' + model_name + '/partial_ckpt_config.json', 'r') as f:
@@ -167,7 +166,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         # Save files if better than best performance
         if loss_mean < val_loss_min:
             val_loss_min = loss_mean
-            torch.save(tae.state_dict(), save_path + '/Classifier_full_best_' + model_name)
+            torch.save(classifier.state_dict(), save_path + '/Classifier_full_best_' + model_name)
 
         # Update the checkpoint file
         with open('./outputs/' + model_name + '/full_ckpt_config.json', 'r') as f:
