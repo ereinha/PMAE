@@ -53,8 +53,8 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {loss_mean:.4f}")
         
         # Save files if better than best performance
-        if val_loss_mean < val_loss_min:
-            val_loss_min = val_loss_mean
+        if loss_mean < val_loss_min:
+            val_loss_min = loss_mean
             torch.save(tae.state_dict(), save_path + '/TAE_best_' + model_name)
 
         # Update the checkpoint file
@@ -104,13 +104,13 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
                 val_loss = criterion(outputs_2, labels.float())
                 val_losses.append(val_loss.item())
 
-        val_loss_mean = sum(val_losses) / len(val_losses)
+        loss_mean = sum(val_losses) / len(val_losses)
 
-        print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {val_loss_mean:.4f}")
+        print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {loss_mean:.4f}")
         
         # Save files if better than best performance
-        if val_loss_mean < val_loss_min:
-            val_loss_min = val_loss_mean
+        if loss_mean < val_loss_min:
+            val_loss_min = loss_mean
             torch.save(tae.state_dict(), save_path + '/Classifier_partial_best_' + model_name)
 
         # Update the checkpoint file
@@ -160,13 +160,13 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
                 val_loss = criterion(outputs_2, labels.float())
                 val_losses.append(val_loss.item())
 
-        val_loss_mean = sum(val_losses) / len(val_losses)
+        loss_mean = sum(val_losses) / len(val_losses)
 
-        print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {val_loss_mean:.4f}")
+        print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {loss_mean:.4f}")
         
         # Save files if better than best performance
-        if val_loss_mean < val_loss_min:
-            val_loss_min = val_loss_mean
+        if loss_mean < val_loss_min:
+            val_loss_min = loss_mean
             torch.save(tae.state_dict(), save_path + '/Classifier_full_best_' + model_name)
 
         # Update the checkpoint file
