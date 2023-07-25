@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Test loop
-def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device, mask, scaler, output_vars, information, model_name, lower=[0,-3.2,-1.6,0], upper=[4,3.2,1.6,1]):
+def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device, mask, scaler, output_vars, information, model_name, lower=[0,-3.2,-1.6,0], upper=[4,3.2,1.6,3.2]):
     tae, classifier = models[0], models[1]
     tae.eval()
     classifier.eval()
@@ -131,4 +131,4 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                 acc = accuracy_score(test_labels, binary_preds)
                 print('Classification Accuracy (full-information): ', acc)
                 
-                plt.savefig('./outputs/' + model_name + '/ROC_AUC_full_' + masked_parts[i])
+                plt.savefig('./outputs/' + model_name + '/ROC_AUC_full')
