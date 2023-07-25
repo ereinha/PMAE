@@ -5,7 +5,7 @@ from sklearn.metrics import roc_curve, auc, accuracy_score
 import os
 
 # Test loop
-def test(loader, test_batch_size, X_test_arr, test_labels, models, device, mask, scaler, output_vars, information, lower=[0,-3.2,-1.6,0], upper=[4,3.2,1.6,1]):
+def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device, mask, scaler, output_vars, information, model_name, lower=[0,-3.2,-1.6,0], upper=[4,3.2,1.6,1]):
     tae, classifier = models[0], models[1]
     tae.eval()
     classifier.eval()
