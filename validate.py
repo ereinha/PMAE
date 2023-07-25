@@ -138,7 +138,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
                 inputs = inputs.to(device)
                 labels = labels.to(device)
                 with torch.no_grad():
-                    outputs = torch.zeros(inputs.size(0), 6, output_vars)
+                    outputs = torch.zeros(inputs.size(0), 6, output_vars).to(device)
                     for i in range(6):
                         if mask is not None:
                             if mask == 0:

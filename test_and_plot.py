@@ -94,7 +94,7 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                 inputs, labels = batch
                 inputs = inputs.to(device)
                 labels = labels.to(device)
-                outputs = torch.zeros(inputs.size(0), 6, output_vars)
+                outputs = torch.zeros(inputs.size(0), 6, output_vars).to(device)
                 for i in range(6):
                     if mask is not None:
                         if mask == 0:
