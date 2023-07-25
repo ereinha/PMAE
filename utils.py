@@ -176,26 +176,29 @@ def parse_model_name(model_name):
         "CFD": "class_ff_dim"
     }
 
-    # Split the model name into its components
-    components = model_name.split('_')[1:] # Ignore 'Model'
+    # Remove 'Model' from the start of the model name
+    model_name = model_name.lstrip('Model_')
 
-    # Iterate through each component
-    for component in components:
-        key, value = component[0], component[1:]
-        
-        # Map the key from the model name to the key in the JSON
-        key = key_map[key]
-
-        # Try to convert the value to a float, and then to an integer if possible
-        try:
-            value = float(value)
-            if value.is_integer():
+    # Iterate through each key in the key map
+    for key in key_map.keys():
+        # If the model name contains the key
+        if key in model_name:
+            # Find the start and end index of the value
+            start = model_name.index(key) + len(key)
+            end = model_name.index('_', start) if '_' in model_name[start:] else len(model_name)
+            
+            # Extract and convert the value
+            value = model_name[start:end]
+            if 'e' in value or '.' in value:  # The value is a float
+                value = float(value)
+            else:
                 value = int(value)
-        except ValueError:
-            pass
-
-        # Add the key-value pair to the dictionary
-        data[key] = value
+            
+            # Add the key-value pair to the dictionary
+            data[key_map[key]] = value
+            
+            # Remove the processed part from the model name
+            model_name = model_name[end+1:]
 
     # Convert the dictionary to a JSON string
     json_string = json.dumps(data, indent=4)
