@@ -63,7 +63,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         config['resume_epoch'] = epoch
         with open('./outputs/' + model_name + '/tae_ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
-        return val_loss_min, val_loss_min_2
+        return val_loss_min
 
     elif model_type == 'classifier partial':
         dir_name = './outputs/' + model_name
@@ -119,7 +119,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         config['resume_epoch'] = epoch
         with open('./outputs/' + model_name + '/partial_ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
-        return val_loss_min, val_loss_min_2
+        return val_loss_min
 
     elif model_type == 'classifier full':
         dir_name = './outputs/' + model_name
@@ -175,4 +175,4 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         config['resume_epoch'] = epoch
         with open('./outputs/' + model_name + '/full_ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
-        return val_loss_min, val_loss_min_2
+        return val_loss_min
