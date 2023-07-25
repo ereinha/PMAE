@@ -153,6 +153,8 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
 
                     outputs = torch.reshape(outputs, (outputs.size(0),
                                                       outputs.size(1) * outputs.size(2)))
+                    inputs = torch.reshape(inputs, (inputs.size(0),
+                                                    inputs.size(1) * inputs.size(2)))
 
                 outputs_2 = classifier(torch.cat((outputs, inputs), axis=1)).squeeze(1)
 
