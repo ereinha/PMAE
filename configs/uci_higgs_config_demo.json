@@ -7,7 +7,7 @@
     "batch_size": 512,
     "test_batch_size": 4096,
     "resume_epoch": 0,
-    "num_epochs": 50,
+    "num_epochs": 35,
     "epochs_to_saturate": 200,
     "init_momentum": 0.9,
     "max_momentum": 0.99,
