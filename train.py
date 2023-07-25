@@ -5,10 +5,7 @@ from argparse import ArgumentParser
 
 def train(train_loader, val_loader, models, device, optimizer, criterion, model_type, output_vars, mask=None, num_epochs:int=50, val_loss_min:int=999, save_path:str='./saved_models', model_name:str=''):
     # Create an outputs folder to store config files
-    try:
-        os.mkdir('./outputs/' + model_name)
-    except:
-        print('./outputs/' + model_name + ' Already Exists')
+    os.makedirs('./outputs/' + model_name, exist_ok=True)
     if model_type == 'autoencoder':
         tae = models[0]
         for epoch in range(num_epochs):
@@ -116,6 +113,7 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
 
             val_loss_min = validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name)
         return val_loss_min
+        
     elif model_type == 'classifier full':
         tae, classifier = models[0], models[1]
         for epoch in range(num_epochs):

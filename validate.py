@@ -2,6 +2,7 @@ import torch
 from models.masks import ParticleMask, KinematicMask
 import json
 from utils import parse_model_name
+import os
 
 # Validation loop
 def validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name):
@@ -9,7 +10,10 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
     config = parse_model_name(model_name)
 
     if model_type == 'autoencoder':
-        with open('./outputs/' + model_name + '/tae_ckpt_config.json', 'w') as f:
+        dir_name = './outputs/' + model_name
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
+        with open(dir_name + '/tae_ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
         tae = models[0]
         tae.eval()  # Set the tae to evaluation mode
@@ -62,7 +66,10 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         return val_loss_min, val_loss_min_2
 
     elif model_type == 'classifier partial':
-        with open('./outputs/' + model_name + '/partial_ckpt_config.json', 'w') as f:
+        dir_name = './outputs/' + model_name
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
+        with open(dir_name + '/partial_ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
         tae, classifier = models[0], models[1]
         # Validation loop
@@ -115,7 +122,10 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         return val_loss_min, val_loss_min_2
 
     elif model_type == 'classifier full':
-        with open('./outputs/' + model_name + '/full_ckpt_config.json', 'w') as f:
+        dir_name = './outputs/' + model_name
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
+        with open(dir_name + '/full_ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
         tae, classifier = models[0], models[1]
         # Validation loop
