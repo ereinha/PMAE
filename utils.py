@@ -153,7 +153,7 @@ def parse_model_name(model_name):
         "L": "num_layers",
         "F": "d_ff",
         "Dr": "dropout",
-        "B": "batch_size",
+        "BS": "batch_size",
         "T": "test_batch_size",
         "RE": "resume_epoch",
         "NE": "num_epochs",
