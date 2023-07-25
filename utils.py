@@ -151,7 +151,7 @@ def parse_model_name(model_name : str):
 
     # Parse the elements
     for element in elements:
-        key, value = element[0], element[1:]
+        key, value = element.split('D')[0], element.split('D')[1]
 
         # Try converting values to float or int if possible, else leave them as string
         try:
@@ -165,7 +165,4 @@ def parse_model_name(model_name : str):
         # Construct the dictionary
         json_dict[key] = value
 
-    # Convert the dictionary to a JSON string
-    json_string = json.dumps(json_dict, indent=4)
-
-    return json.loads(json_string)
+    return json_dict
