@@ -143,15 +143,17 @@ class SGDWithSaturatingMomentumAndDecay(optim.Optimizer):
             group['momentum'] = min(group['momentum'] + momentum_step, max_momentum)
             group['lr'] = max(group['lr'] * group['lr_decay'], group['min_lr'])
 
-def parse_model_name(model_name : str):
-    elements = model_name.split('_')[1:]  # remove the first 'Model' element
+def parse_model_name(model_name: str):
+    import re
+
+    elements = re.findall(r'[a-zA-Z_]+|[0-9.]+', model_name)
 
     # Initialize an empty dictionary to hold the key-value pairs
     json_dict = {}
 
     # Parse the elements
-    for element in elements:
-        key, value = element.split('D')[0], element.split('D')[1]
+    for i in range(0, len(elements), 2):
+        key, value = elements[i], elements[i + 1]
 
         # Try converting values to float or int if possible, else leave them as string
         try:
