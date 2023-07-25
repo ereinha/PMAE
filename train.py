@@ -2,6 +2,7 @@ import torch
 from validate import validate
 from models.masks import ParticleMask, KinematicMask
 from argparse import ArgumentParser
+import os
 
 def train(train_loader, val_loader, models, device, optimizer, criterion, model_type, output_vars, mask=None, num_epochs:int=50, val_loss_min:int=999, save_path:str='./saved_models', model_name:str=''):
     # Create an outputs folder to store config files
