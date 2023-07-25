@@ -5,7 +5,7 @@ import json
 # Validation loop
 def validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name):
     # Create a config checkpoint file
-    config = parse_model_name(model_name)
+    config = utils.parse_model_name(model_name)
 
     if model_type == 'autoencoder':
         with open('./outputs/' + model_name + '/tae_ckpt_config.json', 'w') as f:
