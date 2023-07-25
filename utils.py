@@ -143,28 +143,61 @@ class SGDWithSaturatingMomentumAndDecay(optim.Optimizer):
             group['momentum'] = min(group['momentum'] + momentum_step, max_momentum)
             group['lr'] = max(group['lr'] * group['lr_decay'], group['min_lr'])
 
-def parse_model_name(model_name: str):
-    import re
+def parse_model_name(model_name):
+    data = {}
 
-    elements = re.findall(r'[a-zA-Z_]+|[0-9.]+', model_name)
+    # A dictionary to map from the keys in the model name to the keys in the JSON
+    key_map = {
+        "D": "d_model",
+        "H": "num_heads",
+        "L": "num_layers",
+        "F": "d_ff",
+        "Dr": "dropout",
+        "B": "batch_size",
+        "T": "test_batch_size",
+        "RE": "resume_epoch",
+        "NE": "num_epochs",
+        "ES": "epochs_to_saturate",
+        "IM": "init_momentum",
+        "MM": "max_momentum",
+        "TILR": "tae_init_lr",
+        "CILR": "class_init_lr",
+        "MSL": "max_seq_len",
+        "Mk": "mask",
+        "A": "alpha",
+        "B": "beta",
+        "G": "gamma",
+        "D": "delta",
+        "OV": "output_vars",
+        "WD": "weight_decay",
+        "MLR": "min_lr",
+        "LD": "lr_decay",
+        "CIF": "class_input_features",
+        "CFD": "class_ff_dim"
+    }
 
-    # Initialize an empty dictionary to hold the key-value pairs
-    json_dict = {}
+    # Split the model name into its components
+    components = model_name.split('_')[1:] # Ignore 'Model'
 
-    # Parse the elements
-    for i in range(0, len(elements), 2):
-        key, value = elements[i], elements[i + 1]
+    # Iterate through each component
+    for component in components:
+        key, value = component[0], component[1:]
+        
+        # Map the key from the model name to the key in the JSON
+        key = key_map[key]
 
-        # Try converting values to float or int if possible, else leave them as string
+        # Try to convert the value to a float, and then to an integer if possible
         try:
-            if '.' in value:
-                value = float(value)
-            else:
+            value = float(value)
+            if value.is_integer():
                 value = int(value)
         except ValueError:
             pass
 
-        # Construct the dictionary
-        json_dict[key] = value
+        # Add the key-value pair to the dictionary
+        data[key] = value
 
-    return json_dict
+    # Convert the dictionary to a JSON string
+    json_string = json.dumps(data, indent=4)
+
+    return json_string
