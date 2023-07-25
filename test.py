@@ -73,18 +73,18 @@ def test(loader, test_batch_size, X_test_arr, test_labels, models, device, mask,
                 outputs_arr_tt = outputs_arr[test_labels==0]
 
                 # Generate scatter plots
-                utils.make_hist2d(i, 4, 0, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './outputs/' + model_name, lower=lower[0], upper=upper[0])
-                utils.make_hist2d(i, 4, 1, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './outputs/' + model_name, lower=lower[1], upper=upper[1])
-                utils.make_hist2d(i, 4, 2, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './outputs/' + model_name, lower=lower[2], upper=upper[2])
+                utils.make_hist2d(i, output_vars, 0, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './outputs/' + model_name, lower=lower[0], upper=upper[0])
+                utils.make_hist2d(i, output_vars, 1, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './outputs/' + model_name, lower=lower[1], upper=upper[1])
+                utils.make_hist2d(i, output_vars, 2, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './outputs/' + model_name, lower=lower[2], upper=upper[2])
                 if output_vars == 4:
-                    utils.make_hist2d(i, 4, 3, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './outputs/' + model_name, lower=lower[3], upper=upper[3])
+                    utils.make_hist2d(i, output_vars, 3, names, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', './outputs/' + model_name, lower=lower[3], upper=upper[3])
 
                 # Generate scatter plots
-                utils.make_hist2d(i, 4, 0, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './outputs/' + model_name, lower=lower[0], upper=upper[0])
-                utils.make_hist2d(i, 4, 1, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './outputs/' + model_name, lower=lower[1], upper=upper[1])
-                utils.make_hist2d(i, 4, 2, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './outputs/' + model_name, lower=lower[2], upper=upper[2])
+                utils.make_hist2d(i, output_vars, 0, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './outputs/' + model_name, lower=lower[0], upper=upper[0])
+                utils.make_hist2d(i, output_vars, 1, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './outputs/' + model_name, lower=lower[1], upper=upper[1])
+                utils.make_hist2d(i, output_vars, 2, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './outputs/' + model_name, lower=lower[2], upper=upper[2])
                 if output_vars == 4:
-                    utils.make_hist2d(i, 4, 3, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './outputs/' + model_name, lower=lower[3], upper=upper[3])
+                    utils.make_hist2d(i, output_vars, 3, names, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', './outputs/' + model_name, lower=lower[3], upper=upper[3])
 
     elif information == 'full':
         with torch.no_grad():
