@@ -116,19 +116,19 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
 
                 outputs_arr_2[batch_idx*test_batch_size:(batch_idx+1)*test_batch_size] = outputs_2
 
-                outputs_arr_2 = outputs_arr_2.cpu().numpy()
+            outputs_arr_2 = outputs_arr_2.cpu().numpy()
 
-                fpr, tpr, _ = roc_curve(test_labels, outputs_arr_2)
-                roc_auc = auc(fpr, tpr)
-                plt.plot([0, 1], [0, 1], 'k--')
-                plt.plot(fpr, tpr, label='(ROC-AUC = {:.3f})'.format(roc_auc))
-                plt.xlabel('False positive rate')
-                plt.ylabel('True positive rate')
-                plt.title('ROC curve (full-information)')
-                plt.legend(loc='best')
-                plt.show()
-                binary_preds = [1 if p > 0.5 else 0 for p in outputs_arr_2]
-                acc = accuracy_score(test_labels, binary_preds)
-                print('Classification Accuracy (full-information): ', acc)
-                
-                plt.savefig('./outputs/' + model_name + '/ROC_AUC_full')
+            fpr, tpr, _ = roc_curve(test_labels, outputs_arr_2)
+            roc_auc = auc(fpr, tpr)
+            plt.plot([0, 1], [0, 1], 'k--')
+            plt.plot(fpr, tpr, label='(ROC-AUC = {:.3f})'.format(roc_auc))
+            plt.xlabel('False positive rate')
+            plt.ylabel('True positive rate')
+            plt.title('ROC curve (full-information)')
+            plt.legend(loc='best')
+            plt.show()
+            binary_preds = [1 if p > 0.5 else 0 for p in outputs_arr_2]
+            acc = accuracy_score(test_labels, binary_preds)
+            print('Classification Accuracy (full-information): ', acc)
+            
+            plt.savefig('./outputs/' + model_name + '/ROC_AUC_full')
