@@ -8,7 +8,7 @@
     "test_batch_size": 4096,
     "resume_epoch": 0,
     "num_epochs": 50,
-    "epochs_to_saturate": 200,
+    "epochs_to_saturate": 50,
     "init_momentum": 0.9,
     "max_momentum": 0.99,
     "tae_init_lr": 0.02,
