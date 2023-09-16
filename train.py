@@ -61,7 +61,7 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                     print(f"Epoch [{epoch+1}/{num_epochs}], Batch [{batch_idx+1}/{len(train_loader)}], Loss: {running_loss / 500:.4f}")
                     running_loss = 0.0
 
-            val_loss_min = validate(val_loader, models, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min)
+            val_loss_min = validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name)
         return val_loss_min
 
     elif model_type == 'classifier partial':
@@ -121,7 +121,7 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                     print(f"Epoch [{epoch+1}/{num_epochs}], Batch [{batch_idx+1}/{len(train_loader)}], Loss: {running_loss / 500:.4f}")
                     running_loss = 0.0
 
-            val_loss_min = validate(val_loader, models, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min)
+            val_loss_min = validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name)
         return val_loss_min
         
     elif model_type == 'classifier full':
@@ -183,5 +183,5 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                     print(f"Epoch [{epoch+1}/{num_epochs}], Batch [{batch_idx+1}/{len(train_loader)}], Loss: {running_loss / 500:.4f}")
                     running_loss = 0.0
 
-            val_loss_min = validate(val_loader, models, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min)
+            val_loss_min = validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name)
         return val_loss_min
