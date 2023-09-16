@@ -83,21 +83,20 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                     # Mask input data
                     masked_inputs = mask_layer(inputs)
 
-                with torch.no_grad():
-                    # Forward pass for autoencoder
-                    outputs = tae(masked_inputs)
+                # Forward pass for autoencoder
+                outputs = tae(masked_inputs)
 
-                    # Flatten last axis
-                    outputs = torch.reshape(outputs, (outputs.size(0),
-                                                      outputs.size(1) * outputs.size(2)))
+                # Flatten last axis
+                outputs = torch.reshape(outputs, (outputs.size(0),
+                                                    outputs.size(1) * outputs.size(2)))
 
-                    masked_inputs = torch.reshape(masked_inputs, (masked_inputs.size(0),
-                                                                  masked_inputs.size(1) * masked_inputs.size(2)))
+                masked_inputs = torch.reshape(masked_inputs, (masked_inputs.size(0),
+                                                                masked_inputs.size(1) * masked_inputs.size(2)))
 
-                    # Reset trivial values while maintaining computational graph
-                    mask_999 = (masked_inputs == 999).float()
-                    outputs = (1 - mask_999) * outputs + mask_999 * 1
-                    masked_inputs = (1 - mask_999) * masked_inputs + mask_999 * 1
+                # Reset trivial values
+                mask_999 = (masked_inputs == 999).float()
+                outputs = (1 - mask_999) * outputs + mask_999 * 1
+                masked_inputs = (1 - mask_999) * masked_inputs + mask_999 * 1
 
                 # Zero the gradients
                 optimizer.zero_grad()
@@ -136,31 +135,29 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                 inputs, labels = batch
                 inputs = inputs.to(device)
                 labels = labels.to(device)
-                with torch.no_grad():
-                    outputs = torch.zeros(inputs.size(0), 6, output_vars+(output_vars%3)).to(device)
-                    for i in range(6):
-                        if mask is not None:
-                            if mask == 0:
-                                mask_layer = SpecificParticleMask(output_vars+(output_vars%3), i)
-                            else:
-                                mask_layer = KinematicMask(mask)
-                            # Mask input data
-                            masked_inputs = mask_layer(inputs)
-                        # Forward pass for autoencoder
-                        temp_outputs = tae(masked_inputs)
-                        outputs[:,i,:] = temp_outputs[:,i,:]
+                outputs = torch.zeros(inputs.size(0), 6, output_vars+(output_vars%3)).to(device)
+                for i in range(6):
+                    if mask is not None:
+                        if mask == 0:
+                            mask_layer = SpecificParticleMask(output_vars+(output_vars%3), i)
+                        else:
+                            mask_layer = KinematicMask(mask)
+                        # Mask input data
+                        masked_inputs = mask_layer(inputs)
+                    # Forward pass for autoencoder
+                    temp_outputs = tae(masked_inputs)
+                    outputs[:,i,:] = temp_outputs[:,i,:]
 
-                    # Reset trivial values while maintaining computational graph
-                    mask_999 = (masked_inputs == 999).float()
-                    outputs = (1 - mask_999) * outputs + mask_999 * 1
+                # Reset trivial values
+                mask_999 = (masked_inputs == 999).float()
+                outputs = (1 - mask_999) * outputs + mask_999 * 1
 
-                    # Flatten last axes of tensors
-                    outputs = torch.reshape(outputs, (outputs.size(0),
-                                                      outputs.size(1) * outputs.size(2)))
+                # Flatten last axes of tensors
+                outputs = torch.reshape(outputs, (outputs.size(0),
+                                                    outputs.size(1) * outputs.size(2)))
 
-                    inputs = torch.reshape(inputs, (inputs.size(0),
-                                                    inputs.size(1) * inputs.size(2)))
-
+                inputs = torch.reshape(inputs, (inputs.size(0),
+                                                inputs.size(1) * inputs.size(2)))
 
                 # Zero the gradients
                 optimizer.zero_grad()
