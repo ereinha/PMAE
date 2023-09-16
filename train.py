@@ -94,9 +94,10 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                     masked_inputs = torch.reshape(masked_inputs, (masked_inputs.size(0),
                                                                   masked_inputs.size(1) * masked_inputs.size(2)))
 
-                    # Reset trivial values
-                    outputs[masked_inputs == 999] = 1
-                    masked_inputs[masked_inputs == 999] = 1
+                    # Reset trivial values while maintaining computational graph
+                    mask_999 = (masked_inputs == 999).float()
+                    outputs = (1 - mask_999) * outputs + mask_999 * 1
+                    masked_inputs = (1 - mask_999) * masked_inputs + mask_999 * 1
 
                 # Zero the gradients
                 optimizer.zero_grad()
@@ -149,8 +150,9 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                         temp_outputs = tae(masked_inputs)
                         outputs[:,i,:] = temp_outputs[:,i,:]
 
-                    # Reset trivial values
-                    outputs[masked_inputs == 999] = 1
+                    # Reset trivial values while maintaining computational graph
+                    mask_999 = (masked_inputs == 999).float()
+                    outputs = (1 - mask_999) * outputs + mask_999 * 1
 
                     # Flatten last axes of tensors
                     outputs = torch.reshape(outputs, (outputs.size(0),
