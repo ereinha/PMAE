@@ -25,6 +25,6 @@
     "weight_decay": 0.00004,
     "min_lr": 0.00001,
     "lr_decay": 0.999998,
-    "class_input_features": 48,
+    "class_input_features": 60,
     "class_ff_dim": 512
 }
