@@ -212,8 +212,8 @@ class DataLabelDataset(Dataset):
     def __init__(self, data, labels, dtype: str = 'numpy'):
         super(DataLabelDataset, self).__init__()
         if dtype == 'numpy':
-            self.data = torch.from_numpy(data)
-            self.labels = torch.from_numpy(labels)
+            self.data = torch.from_numpy(data).type(torch.FloatTensor)
+            self.labels = torch.from_numpy(labels).type(torch.FloatTensor)
         elif dtype == 'torch':
             self.data = data
             self.labels = labels
