@@ -12,16 +12,22 @@ class ParticleMask(nn.Module):
         batch, seq_len, features = x.size()
         assert features == self.group_size, "Sequence length must be divisible by group_size"
 
-        # Generate a mask tensor with the same shape as the input tensor
         mask = torch.ones(batch, seq_len, features, device=x.device)
 
-        # Generate a random starting index for each sample in the batch and mask those features
-        for b in range(batch):
-            idx = random.randint(0, seq_len - 1)
-            # idx = random.randint(0, 2) # leptons and MET only
+        random_idxs = torch.randint(0, seq_len, (batch,), device=x.device)
+        for b, idx in enumerate(random_idxs):
             mask[b, idx, :] = 0
 
-        return x * mask
+        masked_x = x * mask
+
+        sums = masked_x[:, :, 4].sum(dim=1)
+        condition_met = sums >= 2
+
+        for b, idx in enumerate(random_idxs):
+            if condition_met[b]:
+                masked_x[b, idx, 3] = 999
+
+        return masked_x
 
 class SpecificParticleMask(nn.Module):
     def __init__(self, group_size=4, particle=0):
@@ -33,14 +39,21 @@ class SpecificParticleMask(nn.Module):
         assert x.dim() == 3, "Input tensor must be 3-dimensional (batch_size, seq_len, dim_in)"
         batch, seq_len, features = x.size()
 
-        # Generate a mask tensor with the same shape as the input tensor
         mask = torch.ones(batch, seq_len, features, device=x.device)
 
-        # Generate a random starting index for each sample in the batch
         for b in range(batch):
             mask[b, self.particle, :] = 0
 
-        return x * mask
+        masked_x = x * mask
+
+        sums = masked_x[:, :, 4].sum(dim=1)
+        condition_met = sums >= 2
+
+        for b in range(batch):
+            if condition_met[b]:
+                masked_x[b, self.particle, 3] = 999
+
+        return masked_x
 
 class KinematicMask(nn.Module):
     def __init__(self, mask_count):
