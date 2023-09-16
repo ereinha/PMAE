@@ -5,7 +5,7 @@ from utils import parse_model_name
 import os
 
 # Validation loop
-def validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name):
+def validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, loss_min, save_path, model_name):
     # Create a config checkpoint file
     config = parse_model_name(model_name)
     if model_type == 'autoencoder':
@@ -53,17 +53,17 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {loss_mean:.4f}")
         
         # Save files if better than best performance
-        if loss_mean < val_loss_min:
-            val_loss_min = loss_mean
+        if loss_mean < loss_min:
+            loss_min = loss_mean
             torch.save(tae.state_dict(), save_path + '/TAE_best_' + model_name)
 
         # Update the checkpoint file
         with open('./outputs/' + model_name + '/tae_ckpt_config.json', 'r') as f:
             config = json.load(f)
-        config['resume_epoch'] = epoch
+        config['ae_resume_epoch'] = epoch
         with open('./outputs/' + model_name + '/tae_ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
-        return val_loss_min
+        return loss_min
 
     elif model_type == 'classifier partial':
         dir_name = './outputs/' + model_name
@@ -114,17 +114,17 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {loss_mean:.4f}")
         
         # Save files if better than best performance
-        if loss_mean < val_loss_min:
-            val_loss_min = loss_mean
+        if loss_mean < loss_min:
+            loss_min = loss_mean
             torch.save(classifier.state_dict(), save_path + '/Classifier_partial_best_' + model_name)
 
         # Update the checkpoint file
         with open('./outputs/' + model_name + '/partial_ckpt_config.json', 'r') as f:
             config = json.load(f)
-        config['resume_epoch'] = epoch
+        config['pc_resume_epoch'] = epoch
         with open('./outputs/' + model_name + '/partial_ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
-        return val_loss_min
+        return loss_min
 
     elif model_type == 'classifier full':
         dir_name = './outputs/' + model_name
@@ -177,14 +177,14 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {loss_mean:.4f}")
         
         # Save files if better than best performance
-        if loss_mean < val_loss_min:
-            val_loss_min = loss_mean
+        if loss_mean < loss_min:
+            loss_min = loss_mean
             torch.save(classifier.state_dict(), save_path + '/Classifier_full_best_' + model_name)
 
         # Update the checkpoint file
         with open('./outputs/' + model_name + '/full_ckpt_config.json', 'r') as f:
             config = json.load(f)
-        config['resume_epoch'] = epoch
+        config['fc_resume_epoch'] = epoch
         with open('./outputs/' + model_name + '/full_ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
-        return val_loss_min
+        return loss_min

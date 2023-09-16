@@ -4,7 +4,7 @@ from models.masks import ParticleMask, SpecificParticleMask, KinematicMask
 from argparse import ArgumentParser
 import os
 
-def train(train_loader, val_loader, models, device, optimizer, criterion, model_type, output_vars, zero_padded=[], mask=None, num_epochs:int=50, val_loss_min:int=999, save_path:str='./saved_models', model_name:str=''):
+def train(train_loader, val_loader, models, device, optimizer, criterion, model_type, output_vars, zero_padded=[], mask=None, num_epochs:int=50, loss_min:int=999, save_path:str='./saved_models', model_name:str=''):
     # Create an outputs folder to store config files
     os.makedirs('./outputs/' + model_name, exist_ok=True)
     if num_epochs <= 0:
@@ -61,8 +61,8 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                     print(f"Epoch [{epoch+1}/{num_epochs}], Batch [{batch_idx+1}/{len(train_loader)}], Loss: {running_loss / 500:.4f}")
                     running_loss = 0.0
 
-            val_loss_min = validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name)
-        return val_loss_min
+            loss_min = validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, loss_min, save_path, model_name)
+        return loss_min
 
     elif model_type == 'classifier partial':
         tae, classifier = models[0], models[1]
@@ -121,8 +121,8 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                     print(f"Epoch [{epoch+1}/{num_epochs}], Batch [{batch_idx+1}/{len(train_loader)}], Loss: {running_loss / 500:.4f}")
                     running_loss = 0.0
 
-            val_loss_min = validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name)
-        return val_loss_min
+            loss_min = validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, loss_min, save_path, model_name)
+        return loss_min
         
     elif model_type == 'classifier full':
         tae, classifier = models[0], models[1]
@@ -183,5 +183,5 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                     print(f"Epoch [{epoch+1}/{num_epochs}], Batch [{batch_idx+1}/{len(train_loader)}], Loss: {running_loss / 500:.4f}")
                     running_loss = 0.0
 
-            val_loss_min = validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, val_loss_min, save_path, model_name)
-        return val_loss_min
+            loss_min = validate(val_loader, models, device, criterion, model_type, output_vars, mask, epoch, num_epochs, loss_min, save_path, model_name)
+        return loss_min
