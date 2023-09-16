@@ -24,7 +24,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
                 inputs = inputs.to(device)
                 if mask is not None:
                     if mask == 0:
-                        mask_layer = ParticleMask(4)
+                        mask_layer = ParticleMask(output_vars+(output_vars%3))
                     else:
                         mask_layer = KinematicMask(mask)
                     # Mask input data
@@ -35,6 +35,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
                 outputs = torch.reshape(outputs, (outputs.size(0),
                                                   outputs.size(1) * outputs.size(2)))
 
+                # Flatten last axes
                 if output_vars == 3:
                     inputs = inputs[:,:,:-1]
                     inputs = torch.reshape(inputs, (inputs.size(0),
@@ -43,7 +44,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
                 elif output_vars == 4:
                     inputs = torch.reshape(inputs, (inputs.size(0),
                                                     inputs.size(1) * inputs.size(2)))
-                    loss = criterion.compute_loss(outputs, inputs, zero_padded=[3,5,7])
+                    loss = criterion.compute_loss(outputs, inputs, zero_padded=[3,6,8])
 
                 losses.append(loss.item())
 
@@ -74,7 +75,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         # Validation loop
         tae.eval()  # Set the tae to evaluation mode
         classifier.eval()
-        val_losses = []
+        losses = []
         with torch.no_grad():  # Disable gradient calculations
             for val_batch in val_loader:
                 # Move the data to the device
@@ -83,7 +84,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
                 labels = labels.to(device)
                 if mask is not None:
                     if mask == 0:
-                        mask_layer = ParticleMask(4)
+                        mask_layer = ParticleMask(output_vars+(output_vars%3))
                     else:
                         mask_layer = KinematicMask(mask)
                     # Mask input data
@@ -98,12 +99,17 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
                 masked_inputs = torch.reshape(masked_inputs, (masked_inputs.size(0),
                                                               masked_inputs.size(1) * masked_inputs.size(2)))
 
+                # Reset trivia case
+                outputs[masked_inputs == 999] = 1
+                masked_inputs[masked_inputs == 999] = 1
+
+                # Concat encodings and masked inputs
                 outputs_2 = classifier(torch.cat((outputs, masked_inputs), axis=1)).squeeze(1)
 
-                val_loss = criterion(outputs_2, labels.float())
-                val_losses.append(val_loss.item())
-
-        loss_mean = sum(val_losses) / len(val_losses)
+                loss = criterion(outputs_2, labels.float())
+                losses.append(loss.item())
+        
+        loss_mean = sum(losses) / len(losses)
 
         print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {loss_mean:.4f}")
         
@@ -130,7 +136,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         # Validation loop
         tae.eval()  # Set the tae to evaluation mode
         classifier.eval()
-        val_losses = []
+        losses = []
         with torch.no_grad():  # Disable gradient calculations
             for val_batch in val_loader:
                 # Move the data to the device
@@ -138,30 +144,35 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
                 inputs = inputs.to(device)
                 labels = labels.to(device)
                 with torch.no_grad():
-                    outputs = torch.zeros(inputs.size(0), 6, output_vars).to(device)
+                    outputs = torch.zeros(inputs.size(0), 6, output_vars+(output_vars%3)).to(device)
                     for i in range(6):
                         if mask is not None:
                             if mask == 0:
-                                mask_layer = SpecificParticleMask(4, i)
+                                mask_layer = SpecificParticleMask(output_vars+(output_vars%3), i)
                             else:
                                 mask_layer = KinematicMask(mask)
                             # Mask input data
                             masked_inputs = mask_layer(inputs)
                         # Forward pass for autoencoder
                         temp_outputs = tae(masked_inputs)
-                        outputs[:,i,:] = temp_outputs[:,i,:]                    
+                        outputs[:,i,:] = temp_outputs[:,i,:]
 
+                    # Reset trivial case
+                    outputs[masked_inputs == 999] = 1
+
+                    # Flatten last axis
                     outputs = torch.reshape(outputs, (outputs.size(0),
                                                       outputs.size(1) * outputs.size(2)))
                     inputs = torch.reshape(inputs, (inputs.size(0),
                                                     inputs.size(1) * inputs.size(2)))
 
+                # Concat encodings and inputs
                 outputs_2 = classifier(torch.cat((outputs, inputs), axis=1)).squeeze(1)
 
-                val_loss = criterion(outputs_2, labels.float())
-                val_losses.append(val_loss.item())
+                loss = criterion(outputs_2, labels.float())
+                losses.append(loss.item())
 
-        loss_mean = sum(val_losses) / len(val_losses)
+        loss_mean = sum(losses) / len(losses)
 
         print(f"Epoch [{epoch+1}/{num_epochs}], Val Loss: {loss_mean:.4f}")
         
