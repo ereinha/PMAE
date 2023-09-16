@@ -21,7 +21,7 @@
     "beta": 0.5,
     "gamma": 1,
     "delta": 0.25,
-    "output_vars": 3.,
+    "output_vars": 3.0,
     "weight_decay": 0.00004,
     "min_lr": 0.00001,
     "lr_decay": 0.999998,
