@@ -55,10 +55,10 @@ class TransformerAutoencoder(nn.Module):
                                     custom_decoder=None, layer_norm_eps=1e-05,
                                     batch_first=True, norm_first=False,
                                     device=device, dtype=None)
-        self.embedding = LinearEmbedding(d_model)
+        self.embedding = LinearEmbedding(output_vars + (output_vars % 3), d_model)
         self.pos_enc = PositionalEncoding(d_model, max_seq_len, base=100)
         self.dense = nn.Linear(d_model, 128)
-        self.output = nn.Linear(128, output_vars)
+        self.output = nn.Linear(128, output_vars + (output_vars % 3))
 
     def forward(self, src):
         src_mask = (src[:,:,0] == 0)
