@@ -20,7 +20,7 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
     X_test_arr = X_test_arr.reshape(X_test_arr.shape[0], X_test_arr.shape[1] * X_test_arr.shape[2])
     X_test_arr_hh = X_test_arr[test_labels==1]
     X_test_arr_tt = X_test_arr[test_labels==0]
-    if information == 'partial':
+    if information == 'autoencoder':
         with torch.no_grad():
             tae = models[0]
             all_preds = []
@@ -61,9 +61,9 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                 outputs_arr_hh = outputs_arr[test_labels==1]
                 outputs_arr_tt = outputs_arr[test_labels==0]
 
-                # Generate scatter plots
-                utils.make_hist2d(i, output_vars, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', lower=lower, upper=upper)
-                utils.make_hist2d(i, output_vars, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', lower=lower, upper=upper)
+                # Generate histograms
+                utils.make_hist2d(i, output_vars, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', file_path='./outputs/' + model_name, lower=lower, upper=upper)
+                utils.make_hist2d(i, output_vars, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', file_path='./outputs/' + model_name, lower=lower, upper=upper)
 
     elif information == 'partial':
         tae, classifier = models[0], models[1]
@@ -122,18 +122,6 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                 acc = accuracy_score(test_labels, binary_preds)
                 print('Classification Accuracy (masked ', masked_parts[i], '): ', acc)
                 plt.savefig('./outputs/' + model_name + '/ROC_AUC_partial.png')
-
-                if output_vars == 4:
-                    new_b_tags = scipy.special.softmax((outputs_arr[:,:,3:5]), axis=2)
-                    new_b_tags = np.expand_dims(new_b_tags[:,:,1] - new_b_tags[:,:,0], axis=-1)
-                    outputs_arr = np.concatenate((outputs_arr[:,:,:3], new_b_tags), axis=2)
-                outputs_arr = outputs_arr.reshape(outputs_arr.shape[0], outputs_arr.shape[1]*outputs_arr.shape[2])
-                outputs_arr_hh = outputs_arr[test_labels==1]
-                outputs_arr_tt = outputs_arr[test_labels==0]
-
-                # Generate scatter plots
-                utils.make_hist2d(i, output_vars, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', lower=lower, upper=upper)
-                utils.make_hist2d(i, output_vars, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', lower=lower, upper=upper)
             
     elif information == 'full':
         tae, classifier = models[0], models[1]
