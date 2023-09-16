@@ -23,11 +23,14 @@ class ParticleMask(nn.Module):
         sums = masked_x[:, :, 4].sum(dim=1)
         condition_met = sums >= 2
 
+        replacement_values = torch.zeros_like(masked_x)
         for b, idx in enumerate(random_idxs):
             if condition_met[b]:
-                masked_x[b, idx, 3] = 999
+                replacement_values[b, idx, 3] = 999
 
-        return masked_x
+        final_output = (replacement_values == 0).float() * masked_x + replacement_values
+
+        return final_output
 
 class SpecificParticleMask(nn.Module):
     def __init__(self, group_size=4, particle=0):
@@ -49,11 +52,14 @@ class SpecificParticleMask(nn.Module):
         sums = masked_x[:, :, 4].sum(dim=1)
         condition_met = sums >= 2
 
-        for b in range(batch):
+        replacement_values = torch.zeros_like(masked_x)
+        for b, idx in enumerate(random_idxs):
             if condition_met[b]:
-                masked_x[b, self.particle, 3] = 999
+                replacement_values[b, idx, 3] = 999
 
-        return masked_x
+        final_output = (replacement_values == 0).float() * masked_x + replacement_values
+
+        return final_output
 
 class KinematicMask(nn.Module):
     def __init__(self, mask_count):
