@@ -12,7 +12,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         dir_name = './outputs/' + model_name
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
-        with open(dir_name + '/tae_ckpt_config.json', 'w') as f:
+        with open(dir_name + '/ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
         tae = models[0]
         tae.eval()  # Set the tae to evaluation mode
@@ -58,10 +58,10 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
             torch.save(tae.state_dict(), save_path + '/TAE_best_' + model_name)
 
         # Update the checkpoint file
-        with open('./outputs/' + model_name + '/tae_ckpt_config.json', 'r') as f:
+        with open('./outputs/' + model_name + '/ckpt_config.json', 'r') as f:
             config = json.load(f)
         config['ae_resume_epoch'] = epoch + 1
-        with open('./outputs/' + model_name + '/tae_ckpt_config.json', 'w') as f:
+        with open('./outputs/' + model_name + '/ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
         return loss_min
 
@@ -69,7 +69,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         dir_name = './outputs/' + model_name
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
-        with open(dir_name + '/partial_ckpt_config.json', 'w') as f:
+        with open(dir_name + '/ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
         tae, classifier = models[0], models[1]
         # Validation loop
@@ -119,10 +119,10 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
             torch.save(classifier.state_dict(), save_path + '/Classifier_partial_best_' + model_name)
 
         # Update the checkpoint file
-        with open('./outputs/' + model_name + '/partial_ckpt_config.json', 'r') as f:
+        with open('./outputs/' + model_name + '/ckpt_config.json', 'r') as f:
             config = json.load(f)
         config['pc_resume_epoch'] = epoch + 1
-        with open('./outputs/' + model_name + '/partial_ckpt_config.json', 'w') as f:
+        with open('./outputs/' + model_name + '/ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
         return loss_min
 
@@ -130,7 +130,7 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         dir_name = './outputs/' + model_name
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
-        with open(dir_name + '/full_ckpt_config.json', 'w') as f:
+        with open(dir_name + '/ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
         tae, classifier = models[0], models[1]
         # Validation loop
@@ -182,9 +182,9 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
             torch.save(classifier.state_dict(), save_path + '/Classifier_full_best_' + model_name)
 
         # Update the checkpoint file
-        with open('./outputs/' + model_name + '/full_ckpt_config.json', 'r') as f:
+        with open('./outputs/' + model_name + '/ckpt_config.json', 'r') as f:
             config = json.load(f)
         config['fc_resume_epoch'] = epoch + 1
-        with open('./outputs/' + model_name + '/full_ckpt_config.json', 'w') as f:
+        with open('./outputs/' + model_name + '/ckpt_config.json', 'w') as f:
             json.dump(config, f, indent=4)
         return loss_min
