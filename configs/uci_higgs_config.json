@@ -20,7 +20,7 @@
     "alpha": 0.4,
     "beta": 0.5,
     "gamma": 1,
-    "delta": 0.25,
+    "delta": 3.,
     "output_vars": 4,
     "weight_decay": 0.00004,
     "min_lr": 0.00001,
