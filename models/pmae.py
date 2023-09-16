@@ -5,9 +5,9 @@ import math
 
 # Linear Embedding
 class LinearEmbedding(nn.Module):
-    def __init__(self, d_model, linear: bool = False):
+    def __init__(self, vars, d_model, linear: bool = False):
         super(LinearEmbedding, self).__init__()
-        self.embedding_layer = nn.Linear(4, d_model)
+        self.embedding_layer = nn.Linear(vars, d_model)
         self.relu = nn.ReLU()
         self.linear = linear
 
