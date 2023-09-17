@@ -55,7 +55,7 @@ class SpecificParticleMask(nn.Module):
         replacement_values = torch.zeros_like(masked_x)
         for b in range(batch):
             if condition_met[b]:
-                replacement_values[b, :, 3] = 999
+                replacement_values[b, self.particle:, 3] = 999
 
         final_output = (replacement_values == 0).float() * masked_x + replacement_values
 
