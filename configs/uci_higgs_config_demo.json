@@ -15,7 +15,7 @@
     "max_momentum": 0.99,
     "tae_init_lr": 0.02,
     "pc_init_lr": 0.04,
-    "fc_init_lr": 0.01,
+    "fc_init_lr": 0.001,
     "max_seq_len": 6,
     "mask": 0,
     "alpha": 0.4,
