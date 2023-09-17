@@ -12,8 +12,9 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
         dir_name = './outputs/' + model_name
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
-        with open(dir_name + '/ckpt_config.json', 'w') as f:
-            json.dump(config, f, indent=4)
+        if not os.path.exists(dir_name + '/ckpt_config.json'):
+            with open(dir_name + '/ckpt_config.json', 'w') as f:
+                json.dump(config, f, indent=4)
         tae = models[0]
         tae.eval()  # Set the tae to evaluation mode
         losses = []
