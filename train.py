@@ -86,17 +86,21 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                 # Forward pass for autoencoder
                 outputs = tae(masked_inputs)
 
+                # Reset trivial values
+                mask_999 = (masked_inputs[:, :, 0] == 999).float()
+                outputs[:,:,3:5] = torch.nn.functional.softmax(outputs[:,:,3:5], dim=2)
+                outputs[:, :, 0] = (1 - mask_999) * outputs[:, :, 0] + mask_999 * 1
+                outputs[:, :, 1] = (1 - mask_999) * outputs[:, :, 1]
+                masked_inputs[:,:,3:5] = torch.nn.functional.softmax(masked_inputs[:,:,3:5], dim=2)
+                masked_inputs[:, :, 0] = (1 - mask_999) * masked_inputs[:, :, 0] + mask_999 * 1
+                masked_inputs[:, :, 1] = (1 - mask_999) * masked_inputs[:, :, 1]
+
                 # Flatten last axis
                 outputs = torch.reshape(outputs, (outputs.size(0),
                                                     outputs.size(1) * outputs.size(2)))
 
                 masked_inputs = torch.reshape(masked_inputs, (masked_inputs.size(0),
                                                                 masked_inputs.size(1) * masked_inputs.size(2)))
-
-                # Reset trivial values
-                mask_999 = (masked_inputs == 999).float()
-                outputs = (1 - mask_999) * outputs + mask_999 * 1
-                masked_inputs = (1 - mask_999) * masked_inputs + mask_999 * 1
 
                 # Zero the gradients
                 optimizer.zero_grad()
@@ -149,8 +153,10 @@ def train(train_loader, val_loader, models, device, optimizer, criterion, model_
                     outputs[:,i,:] = temp_outputs[:,i,:]
 
                 # Reset trivial values
-                mask_999 = (masked_inputs == 999).float()
-                outputs = (1 - mask_999) * outputs + mask_999 * 1
+                mask_999 = (masked_inputs[:, :, 0] == 999).float()
+                outputs[:,:,3:5] = torch.nn.functional.softmax(outputs[:,:,3:5], dim=2)
+                outputs[:, :, 0] = (1 - mask_999) * outputs[:, :, 0] + mask_999 * 1
+                outputs[:, :, 1] = (1 - mask_999) * outputs[:, :, 1]
 
                 # Flatten last axes of tensors
                 outputs = torch.reshape(outputs, (outputs.size(0),

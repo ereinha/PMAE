@@ -91,18 +91,23 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
                     # Mask input data
                     masked_inputs = mask_layer(inputs)
 
-                with torch.no_grad():
-                    # Forward pass
-                    outputs = tae(masked_inputs)
-                    outputs = torch.reshape(outputs, (outputs.size(0),
-                                                      outputs.size(1) * outputs.size(2)))
+                # Forward pass
+                outputs = tae(masked_inputs)
+
+                # Reset trivial values
+                mask_999 = (masked_inputs[:, :, 0] == 999).float()
+                outputs[:,:,3:5] = torch.nn.functional.softmax(outputs[:,:,3:5], dim=2)
+                outputs[:, :, 0] = (1 - mask_999) * outputs[:, :, 0] + mask_999 * 1
+                outputs[:, :, 1] = (1 - mask_999) * outputs[:, :, 1]
+                masked_inputs[:,:,3:5] = torch.nn.functional.softmax(masked_inputs[:,:,3:5], dim=2)
+                masked_inputs[:, :, 0] = (1 - mask_999) * masked_inputs[:, :, 0] + mask_999 * 1
+                masked_inputs[:, :, 1] = (1 - mask_999) * masked_inputs[:, :, 1]
+
+                outputs = torch.reshape(outputs, (outputs.size(0),
+                                                  outputs.size(1) * outputs.size(2)))
 
                 masked_inputs = torch.reshape(masked_inputs, (masked_inputs.size(0),
                                                               masked_inputs.size(1) * masked_inputs.size(2)))
-
-                # Reset trivia case
-                outputs[masked_inputs == 999] = 1
-                masked_inputs[masked_inputs == 999] = 1
 
                 # Concat encodings and masked inputs
                 outputs_2 = classifier(torch.cat((outputs, masked_inputs), axis=1)).squeeze(1)
@@ -144,22 +149,24 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
                 inputs, labels = val_batch
                 inputs = inputs.to(device)
                 labels = labels.to(device)
-                with torch.no_grad():
-                    outputs = torch.zeros(inputs.size(0), 6, output_vars+(output_vars%3)).to(device)
-                    for i in range(6):
-                        if mask is not None:
-                            if mask == 0:
-                                mask_layer = SpecificParticleMask(output_vars+(output_vars%3), i)
-                            else:
-                                mask_layer = KinematicMask(mask)
-                            # Mask input data
-                            masked_inputs = mask_layer(inputs)
-                        # Forward pass for autoencoder
-                        temp_outputs = tae(masked_inputs)
-                        outputs[:,i,:] = temp_outputs[:,i,:]
+                outputs = torch.zeros(inputs.size(0), 6, output_vars+(output_vars%3)).to(device)
+                for i in range(6):
+                    if mask is not None:
+                        if mask == 0:
+                            mask_layer = SpecificParticleMask(output_vars+(output_vars%3), i)
+                        else:
+                            mask_layer = KinematicMask(mask)
+                        # Mask input data
+                        masked_inputs = mask_layer(inputs)
+                    # Forward pass for autoencoder
+                    temp_outputs = tae(masked_inputs)
+                    outputs[:,i,:] = temp_outputs[:,i,:]
 
-                    # Reset trivial case
-                    outputs[masked_inputs == 999] = 1
+                    # Reset trivial values
+                    mask_999 = (masked_inputs[:, :, 0] == 999).float()
+                    outputs[:,:,3:5] = torch.nn.functional.softmax(outputs[:,:,3:5], dim=2)
+                    outputs[:, :, 0] = (1 - mask_999) * outputs[:, :, 0] + mask_999 * 1
+                    outputs[:, :, 1] = (1 - mask_999) * outputs[:, :, 1]
 
                     # Flatten last axis
                     outputs = torch.reshape(outputs, (outputs.size(0),

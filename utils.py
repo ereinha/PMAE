@@ -77,9 +77,7 @@ def make_hist2d(group_num, steps, ins, outs, scaler, event_type, file_path, lowe
               plt.xlim(lower[step], upper[step])
               plt.ylim(lower[step], upper[step])
               plt.colorbar()
-              plt.show()
-              plt.savefig(file_path + '/hist2d_' + event_type + '_high_res.png')
-              plt.close()
+              plt.savefig(file_path + '/hist2d_' + event_type + '_' + names[group_num*steps+step] + '_high_res.png')
         if step == 3:
             bins = 3
             outputs[:, group_num*step+step] = optimize_thresholds(inputs[:,group_num*steps+step], outputs[:,group_num*steps+step])
@@ -107,10 +105,7 @@ def make_hist2d(group_num, steps, ins, outs, scaler, event_type, file_path, lowe
         plt.xlim(lower[step], upper[step])
         plt.ylim(lower[step], upper[step])
         plt.colorbar()
-        plt.show()
-        plt.close()
-        plt.savefig(file_path + '/hist2d_' + event_type + '.png')
-        plt.show()
+        plt.savefig(file_path + '/hist2d_' + event_type + '_' + names[group_num*steps+step] + '_high_res.png')
 
 class SoftLabelFocalLoss(nn.Module):
     def __init__(self, gamma=2., reduction='mean', entropy_weight=.2):
