@@ -162,17 +162,17 @@ def validate(val_loader, models, device, criterion, model_type, output_vars, mas
                     temp_outputs = tae(masked_inputs)
                     outputs[:,i,:] = temp_outputs[:,i,:]
 
-                    # Reset trivial values
-                    mask_999 = (masked_inputs[:, :, 0] == 999).float()
-                    outputs[:,:,3:5] = torch.nn.functional.softmax(outputs[:,:,3:5], dim=2)
-                    outputs[:, :, 0] = (1 - mask_999) * outputs[:, :, 0] + mask_999 * 1
-                    outputs[:, :, 1] = (1 - mask_999) * outputs[:, :, 1]
+                # Reset trivial values
+                mask_999 = (masked_inputs[:, :, 0] == 999).float()
+                outputs[:,:,3:5] = torch.nn.functional.softmax(outputs[:,:,3:5], dim=2)
+                outputs[:, :, 0] = (1 - mask_999) * outputs[:, :, 0] + mask_999 * 1
+                outputs[:, :, 1] = (1 - mask_999) * outputs[:, :, 1]
 
-                    # Flatten last axis
-                    outputs = torch.reshape(outputs, (outputs.size(0),
-                                                      outputs.size(1) * outputs.size(2)))
-                    inputs = torch.reshape(inputs, (inputs.size(0),
-                                                    inputs.size(1) * inputs.size(2)))
+                # Flatten last axis
+                outputs = torch.reshape(outputs, (outputs.size(0),
+                                                    outputs.size(1) * outputs.size(2)))
+                inputs = torch.reshape(inputs, (inputs.size(0),
+                                                inputs.size(1) * inputs.size(2)))
 
                 # Concat encodings and inputs
                 outputs_2 = classifier(torch.cat((outputs, inputs), axis=1)).squeeze(1)
