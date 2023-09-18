@@ -42,14 +42,16 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                         outputs_arr[batch_idx*test_batch_size:(batch_idx+1)*test_batch_size] = outputs_padded
                     else:
                         outputs_arr[batch_idx*test_batch_size:(batch_idx+1)*test_batch_size] = outputs
-                    outputs = torch.reshape(outputs, (outputs.size(0),
-                                                      outputs.size(1) * outputs.size(2)))
+                    
                     # Reset trivial values
                     mask_999 = (masked_inputs[:, :, 0] == 999).float()
                     outputs[:,:,3:5] = torch.nn.functional.softmax(outputs[:,:,3:5], dim=2)
                     outputs[:, :, 0] = (1 - mask_999) * outputs[:, :, 0] + mask_999 * 1
                     outputs[:, :, 1] = (1 - mask_999) * outputs[:, :, 1]
 
+                    outputs = torch.reshape(outputs, (outputs.size(0),
+                                                      outputs.size(1) * outputs.size(2)))
+                                                      
                 masked_inputs = torch.reshape(masked_inputs, (masked_inputs.size(0),
                                                               masked_inputs.size(1) * masked_inputs.size(2)))
                 
@@ -134,7 +136,7 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                 plt.savefig('./outputs/' + model_name + '/ROC_AUC_partial.png')
                 plt.show()
                 plt.close()
-            
+                
     elif information == 'full':
         tae, classifier = models[0], models[1]
         tae.eval()
