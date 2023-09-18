@@ -54,30 +54,32 @@ def make_hist2d(group_num, steps, ins, outs, scaler, event_type, file_path, lowe
 
     for step in range(steps):
         if step == 3:
-              bins = 30
-              varname = names[group_num*steps+step]
-              heatmap, xedges, yedges = np.histogram2d(inputs[:,group_num*steps+step],
-                                                      outputs[:,group_num*steps+step],
-                                                      bins=bins,
-                                                      range=[[lower[step], upper[step]], [lower[step], upper[step]]])
-              extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+            bins = 30
+            varname = names[group_num*steps+step]
+            heatmap, xedges, yedges = np.histogram2d(inputs[:,group_num*steps+step],
+                                                    outputs[:,group_num*steps+step],
+                                                    bins=bins,
+                                                    range=[[lower[step], upper[step]], [lower[step], upper[step]]])
+            extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
 
-              #Plot heatmap
-              plt.imshow(heatmap.T,
-                        extent=extent,
-                        origin='lower')
-              plt.plot([lower[step], upper[step]],
-                      [lower[step], upper[step]],
-                      color='blue')
-              fig = plt.gcf()
-              plt.set_cmap('gist_heat_r')
-              plt.xlabel('%s scaled True' % varname)
-              plt.ylabel('%s scaled Pred' % varname)
-              plt.title('Frequency Heatmap (' + event_type + ')')
-              plt.xlim(lower[step], upper[step])
-              plt.ylim(lower[step], upper[step])
-              plt.colorbar()
-              plt.savefig(file_path + '/hist2d_' + event_type + '_' + names[group_num*steps+step] + '_high_res.png')
+            #Plot heatmap
+            plt.imshow(heatmap.T,
+                    extent=extent,
+                    origin='lower')
+            plt.plot([lower[step], upper[step]],
+                    [lower[step], upper[step]],
+                    color='blue')
+            fig = plt.gcf()
+            plt.set_cmap('gist_heat_r')
+            plt.xlabel('%s scaled True' % varname)
+            plt.ylabel('%s scaled Pred' % varname)
+            plt.title('Frequency Heatmap (' + event_type + ')')
+            plt.xlim(lower[step], upper[step])
+            plt.ylim(lower[step], upper[step])
+            plt.colorbar()
+            plt.savefig(file_path + '/hist2d_' + event_type + '_' + names[group_num*steps+step] + '_high_res.png')
+            plt.show()
+            plt.close()
         if step == 3:
             bins = 3
             outputs[:, group_num*step+step] = optimize_thresholds(inputs[:,group_num*steps+step], outputs[:,group_num*steps+step])
@@ -106,6 +108,8 @@ def make_hist2d(group_num, steps, ins, outs, scaler, event_type, file_path, lowe
         plt.ylim(lower[step], upper[step])
         plt.colorbar()
         plt.savefig(file_path + '/hist2d_' + event_type + '_' + names[group_num*steps+step] + '_high_res.png')
+        plt.show()
+        plt.close()
 
 class SoftLabelFocalLoss(nn.Module):
     def __init__(self, gamma=2., reduction='mean', entropy_weight=.2):

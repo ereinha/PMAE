@@ -132,6 +132,8 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                 acc = accuracy_score(test_labels, binary_preds)
                 print('Classification Accuracy (masked ', masked_parts[i], '): ', acc)
                 plt.savefig('./outputs/' + model_name + '/ROC_AUC_partial.png')
+                plt.show()
+                plt.close()
             
     elif information == 'full':
         tae, classifier = models[0], models[1]
@@ -188,3 +190,5 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
             acc = accuracy_score(test_labels, binary_preds)
             print('Classification Accuracy (full-information): ', acc)
             plt.savefig('./outputs/' + model_name + '/ROC_AUC_full.png')
+            plt.show()
+            plt.close()
