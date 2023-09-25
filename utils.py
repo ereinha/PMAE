@@ -24,7 +24,7 @@ def optimize_thresholds(y_true, y_pred):
         return -f1
 
     initial_thresholds = [0.5, 1.5]
-    bounds = [(0, 2, (0, 2)]
+    bounds = [(0, 2), (0, 2)]
 
     result = scipy.optimize.minimize(objective, initial_thresholds, bounds=bounds, method='L-BFGS-B')
 
