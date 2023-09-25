@@ -52,7 +52,6 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                 outputs_arr = outputs_arr.cpu().numpy()
 
                 if output_vars == 4:
-                    new_b_tags = scipy.special.softmax((outputs_arr[:,:,3:5]), axis=2)
                     new_b_tags = np.expand_dims(new_b_tags[:,:,1] - new_b_tags[:,:,0], axis=-1)
                     outputs_arr = np.concatenate((outputs_arr[:,:,:3], new_b_tags), axis=2)
                 outputs_arr = outputs_arr.reshape(outputs_arr.shape[0], outputs_arr.shape[1]*outputs_arr.shape[2])

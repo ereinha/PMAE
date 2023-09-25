@@ -17,13 +17,13 @@ def optimize_thresholds(y_true, y_pred, epsilon=.03):
 
     def objective(threshold):
         classified_preds = np.zeros_like(sorted_y_t)
-        classified_preds[sorted_y_p > threshold ] = 2
+        classified_preds[sorted_y_p >= threshold ] = 2
         classified_preds[sorted_y_p < threshold] = 0
         f1 = f1_score(sorted_y_t, classified_preds, average='micro')
         return -f1
 
-    initial_threshold = [1.5]
-    bounds = [(0, 2)]
+    initial_threshold = [1]
+    bounds = [(.5, 1.5)]
 
     result = scipy.optimize.minimize(objective, initial_threshold, bounds=bounds, method='L-BFGS-B')
 
