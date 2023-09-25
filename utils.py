@@ -7,7 +7,7 @@ import torch
 from sklearn.metrics import f1_score
 import scipy
 
-def optimize_thresholds(y_true, y_pred):
+def optimize_single_threshold(y_true, y_pred, epsilon=.05):
     y_t = y_true.copy() + 1
     y_p = y_pred.copy() + 1
 
@@ -15,24 +15,24 @@ def optimize_thresholds(y_true, y_pred):
     sorted_y_t = y_t[sorted_indices]
     sorted_y_p = y_p[sorted_indices]
 
-    def objective(thresholds):
-        lower_threshold, upper_threshold = thresholds
+    def objective(threshold):
         classified_preds = np.zeros_like(sorted_y_t)
-        classified_preds[sorted_y_p > upper_threshold] = 2
-        classified_preds[(sorted_y_p <= upper_threshold) & (sorted_y_p > lower_threshold)] = 1
+        classified_preds[sorted_y_p > threshold + epsilon] = 2
+        classified_preds[(sorted_y_p <= threshold + epsilon) & (sorted_y_p >= threshold - epsilon)] = 1
+        classified_preds[sorted_y_p < threshold - epsilon] = 0
         f1 = f1_score(sorted_y_t, classified_preds, average='micro')
         return -f1
 
-    initial_thresholds = [0.5, 1.5]
-    bounds = [(0, 2), (0, 2)]
+    initial_threshold = [1.5]
+    bounds = [(0, 2)]
 
-    result = scipy.optimize.minimize(objective, initial_thresholds, bounds=bounds, method='L-BFGS-B')
+    result = scipy.optimize.minimize(objective, initial_threshold, bounds=bounds, method='L-BFGS-B')
 
-    optimized_thresholds = result.x
+    optimized_threshold = result.x[0]
 
-    y_p[y_p < (optimized_thresholds[0])] == 0
-    y_p[np.logical_and(y_p >= (optimized_thresholds[0]), y_p <= (optimized_thresholds[1]))] == 1
-    y_p[y_p > (optimized_thresholds[1])] == 2
+    y_p[y_p > optimized_threshold + epsilon] = 2
+    y_p[(y_p <= optimized_threshold + epsilon) & (y_p >= optimized_threshold - epsilon)] = 1
+    y_p[y_p < optimized_threshold - epsilon] = 0
 
     return y_p - 1
 
