@@ -7,7 +7,7 @@ import torch
 from sklearn.metrics import f1_score
 import scipy
 
-def optimize_single_threshold(y_true, y_pred, epsilon=.05):
+def optimize_single_threshold(y_true, y_pred, epsilon=.03):
     y_t = y_true.copy() + 1
     y_p = y_pred.copy() + 1
 
@@ -17,9 +17,8 @@ def optimize_single_threshold(y_true, y_pred, epsilon=.05):
 
     def objective(threshold):
         classified_preds = np.zeros_like(sorted_y_t)
-        classified_preds[sorted_y_p > threshold + epsilon] = 2
-        classified_preds[(sorted_y_p <= threshold + epsilon) & (sorted_y_p >= threshold - epsilon)] = 1
-        classified_preds[sorted_y_p < threshold - epsilon] = 0
+        classified_preds[sorted_y_p > threshold ] = 2
+        classified_preds[sorted_y_p < threshold] = 0
         f1 = f1_score(sorted_y_t, classified_preds, average='micro')
         return -f1
 
