@@ -19,6 +19,8 @@ def optimize_thresholds(y_true, y_pred, epsilon=.03):
         classified_preds = np.zeros_like(sorted_y_t)
         classified_preds[sorted_y_p >= threshold ] = 2
         classified_preds[sorted_y_p < threshold] = 0
+        sorted_y_t = sorted_y_t[sorted_y_t != 1]
+        classified_preds = classified_preds[classified_preds != 1]
         f1 = f1_score(sorted_y_t, classified_preds, average='micro')
         return -f1
 
