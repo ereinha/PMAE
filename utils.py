@@ -7,7 +7,7 @@ import torch
 from sklearn.metrics import f1_score
 import scipy
 
-def optimize_single_threshold(y_true, y_pred, epsilon=.03):
+def optimize_thresholds(y_true, y_pred, epsilon=.03):
     y_t = y_true.copy() + 1
     y_p = y_pred.copy() + 1
 
