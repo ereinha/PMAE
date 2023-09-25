@@ -62,7 +62,7 @@ class TransformerAutoencoder(nn.Module):
 
     def forward(self, src):
         src_mask = (src[:,:,0] == 0)
-        src = self.embedding(src)
+        src = torch.where(src == 999, torch.tensor(1, dtype=src.dtype, device=src.device), src)        src = self.embedding(src)
         src = self.pos_enc(src)
         tgt = self.trans.encoder(src, src_key_padding_mask=src_mask)
         return self.output(self.custom_act(self.dense(self.trans.decoder(src, tgt, tgt_key_padding_mask=src_mask))))
