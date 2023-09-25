@@ -38,10 +38,10 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                     outputs = tae(masked_inputs)
 
                     # Reset trivial values
-                    mask_999 = (masked_inputs[:, :, 0] == 999).float()
+                    mask_999 = (masked_inputs[:, :, 3] == 999).float()
                     outputs[:,:,3:5] = torch.nn.functional.softmax(outputs[:,:,3:5], dim=2)
-                    outputs[:, :, 0] = (1 - mask_999) * outputs[:, :, 0] + mask_999 * 1
-                    outputs[:, :, 1] = (1 - mask_999) * outputs[:, :, 1]
+                    outputs[:, :, 3] = (1 - mask_999) * outputs[:, :, 3] + mask_999 * 1
+                    outputs[:, :, 4] = (1 - mask_999) * outputs[:, :, 4]
 
                     if output_vars == 3:
                         outputs_padded = torch.cat((outputs, torch.zeros(outputs.size(0), outputs.size(1), 1).to(device)), axis=2)
@@ -94,13 +94,13 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                         outputs_arr[batch_idx*test_batch_size:(batch_idx+1)*test_batch_size] = outputs
 
                     # Reset trivial values
-                    mask_999 = (masked_inputs[:, :, 0] == 999).float()
+                    mask_999 = (masked_inputs[:, :, 3] == 999).float()
                     outputs[:,:,3:5] = torch.nn.functional.softmax(outputs[:,:,3:5], dim=2)
-                    outputs[:, :, 0] = (1 - mask_999) * outputs[:, :, 0] + mask_999 * 1
-                    outputs[:, :, 1] = (1 - mask_999) * outputs[:, :, 1]
+                    outputs[:, :, 3] = (1 - mask_999) * outputs[:, :, 3] + mask_999 * 1
+                    outputs[:, :, 4] = (1 - mask_999) * outputs[:, :, 4]
                     masked_inputs[:,:,3:5] = torch.nn.functional.softmax(masked_inputs[:,:,3:5], dim=2)
-                    masked_inputs[:, :, 0] = (1 - mask_999) * masked_inputs[:, :, 0] + mask_999 * 1
-                    masked_inputs[:, :, 1] = (1 - mask_999) * masked_inputs[:, :, 1]
+                    masked_inputs[:, :, 3] = (1 - mask_999) * masked_inputs[:, :, 3] + mask_999 * 1
+                    masked_inputs[:, :, 4] = (1 - mask_999) * masked_inputs[:, :, 4]
                     
                     outputs = torch.reshape(outputs, (outputs.size(0),
                                                       outputs.size(1) * outputs.size(2)))
@@ -156,10 +156,10 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                   outputs[:,i,:] = temp_outputs[:,i,:]
 
                 # Reset trivial values
-                mask_999 = (masked_inputs[:, :, 0] == 999).float()
+                mask_999 = (masked_inputs[:, :, 3] == 999).float()
                 outputs[:,:,3:5] = torch.nn.functional.softmax(outputs[:,:,3:5], dim=2)
-                outputs[:, :, 0] = (1 - mask_999) * outputs[:, :, 0] + mask_999 * 1
-                outputs[:, :, 1] = (1 - mask_999) * outputs[:, :, 1]
+                outputs[:, :, 3] = (1 - mask_999) * outputs[:, :, 3] + mask_999 * 1
+                outputs[:, :, 4] = (1 - mask_999) * outputs[:, :, 4]
 
                 outputs = torch.reshape(outputs, (outputs.size(0),
                                                   outputs.size(1) * outputs.size(2)))
