@@ -31,7 +31,7 @@ def optimize_thresholds(y_true, y_pred):
     optimized_thresholds = result.x
 
     y_p[y_p < (optimized_thresholds[0])] == 0
-    y_p[np.logical_and(y_p >= (optimized_thresholds[0]), y_p <= (optimized_thresholds[1] - 1))] == 1
+    y_p[np.logical_and(y_p >= (optimized_thresholds[0]), y_p <= (optimized_thresholds[1]))] == 1
     y_p[y_p > (optimized_thresholds[1])] == 2
 
     return y_p - 1
@@ -82,7 +82,7 @@ def make_hist2d(group_num, steps, ins, outs, scaler, event_type, file_path, lowe
             plt.close()
         if step == 3:
             bins = 3
-            outputs[:, group_num*step+step] = optimize_thresholds(inputs[:,group_num*steps+step], outputs[:,group_num*steps+step])
+            outputs[:, group_num*steps+step] = optimize_thresholds(inputs[:,group_num*steps+step], outputs[:,group_num*steps+step])
         else:
             bins = 30
         varname = names[group_num*steps+step]
