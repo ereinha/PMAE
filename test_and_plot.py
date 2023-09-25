@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # Test loop
 def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device, mask, scaler, output_vars, information, model_name, lower=[0,-3.2,-1.6,-1], upper=[4,3.2,1.6,1]):
     # Scale back to original scale
-    X_test_arr = X_test_arr.reshape(X_test_arr.shape[0], X_test_arr.shape[1], X_test_arr.shape[2])
+    X_test_arr = X_test_arr.copy().reshape(X_test_arr.shape[0], X_test_arr.shape[1], X_test_arr.shape[2])
     X_test_arr_tensor = torch.tensor(X_test_arr)
     new_b_tags = np.expand_dims(X_test_arr[:,:,4] - X_test_arr[:,:,3], axis=-1)
     X_test_arr = np.concatenate((X_test_arr[:,:,:3], new_b_tags), axis=2)
