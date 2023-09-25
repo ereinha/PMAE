@@ -64,8 +64,8 @@ def make_hist2d(group_num, steps, ins, outs, scaler, event_type, file_path, lowe
 
             #Plot heatmap
             plt.imshow(heatmap.T,
-                      extent=extent,
-                      origin='lower')
+                    extent=extent,
+                    origin='lower')
             plt.plot([lower[step], upper[step]],
                     [lower[step], upper[step]],
                     color='blue')
@@ -80,7 +80,6 @@ def make_hist2d(group_num, steps, ins, outs, scaler, event_type, file_path, lowe
             plt.savefig(file_path + '/hist2d_' + event_type + '_' + names[group_num*steps+step] + '_high_res.png')
             plt.show()
             plt.close()
-
         if step == 3:
             bins = 3
             outputs[:, group_num*step+step] = optimize_thresholds(inputs[:,group_num*steps+step], outputs[:,group_num*steps+step])
@@ -95,8 +94,8 @@ def make_hist2d(group_num, steps, ins, outs, scaler, event_type, file_path, lowe
 
         #Plot heatmap
         plt.imshow(heatmap.T,
-                  extent=extent,
-                  origin='lower')
+                   extent=extent,
+                   origin='lower')
         plt.plot([lower[step], upper[step]],
                  [lower[step], upper[step]],
                  color='blue')
@@ -108,7 +107,7 @@ def make_hist2d(group_num, steps, ins, outs, scaler, event_type, file_path, lowe
         plt.xlim(lower[step], upper[step])
         plt.ylim(lower[step], upper[step])
         plt.colorbar()
-        plt.savefig(file_path + '/hist2d_' + event_type + '_' + names[group_num*steps+step] + '_high_res.png')
+        plt.savefig(file_path + '/hist2d_' + event_type + '_' + names[group_num*steps+step] + '.png')
         plt.show()
         plt.close()
 
