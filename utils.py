@@ -7,27 +7,33 @@ import torch
 from sklearn.metrics import f1_score
 import scipy
 
-def optimize_thresholds(y_true, y_pred, epsilon=.03):
+def optimize_thresholds(y_true, y_pred, mask=None, epsilon=.2):
     y_t = y_true.copy() + 1
     y_p = y_pred.copy() + 1
 
-    sorted_indices = np.argsort(y_p)
-    sorted_y_t = y_t[sorted_indices]
-    sorted_y_p = y_p[sorted_indices]
+    if len(y_t[y_t != 0]) == 0:
+        return np.zeros_like(y_p) - 1
 
-    def objective(threshold):
+    sorted_y_t = y_t[~mask]
+    sorted_y_p = y_p[~mask]
+    sorted_indices = np.argsort(sorted_y_p)
+    sorted_y_t = sorted_y_t[sorted_indices]
+    sorted_y_p = sorted_y_p[sorted_indices]
+
+    def objective(threshold, sorted_y_t, sorted_y_p):
         classified_preds = np.zeros_like(sorted_y_t)
-        classified_preds[sorted_y_p >= threshold ] = 2
-        classified_preds[sorted_y_p < threshold] = 0
+        classified_preds[sorted_y_p > threshold + epsilon] = 2
+        classified_preds[sorted_y_p < threshold - epsilon] = 0
+        classified_preds = classified_preds[sorted_y_t != 1]
         sorted_y_t = sorted_y_t[sorted_y_t != 1]
-        classified_preds = classified_preds[classified_preds != 1]
-        f1 = f1_score(sorted_y_t, classified_preds, average='micro')
+        f1 = f1_score(sorted_y_t, classified_preds, average='weighted')
         return -f1
 
     initial_threshold = [1]
-    bounds = [(.5, 1.5)]
-
-    result = scipy.optimize.minimize(objective, initial_threshold, bounds=bounds, method='L-BFGS-B')
+    bounds = [(.25, 1.75)]
+    
+    result = scipy.optimize.minimize(objective, initial_threshold, bounds=bounds, method='L-BFGS-B', 
+                                     args=(sorted_y_t, sorted_y_p))
 
     optimized_threshold = result.x[0]
 
@@ -37,7 +43,7 @@ def optimize_thresholds(y_true, y_pred, epsilon=.03):
 
     return y_p - 1
 
-def make_hist2d(group_num, steps, ins, outs, scaler, event_type, file_path, lower=None, upper=None):
+def make_hist2d(group_num, steps, ins, outs, scaler, event_type, file_path, mask=None, lower=None, upper=None):
     names = ["lepton pT", "lepton eta", "lepton phi", "Padding",
              "missing energy magnitude", "Padding", "missing energy phi", "Padding",
              "jet 1 pt", "jet 1 eta", "jet 1 phi", "jet 1 b-tag",
@@ -83,7 +89,7 @@ def make_hist2d(group_num, steps, ins, outs, scaler, event_type, file_path, lowe
             plt.close()
         if step == 3:
             bins = 3
-            outputs[:, group_num*steps+step] = optimize_thresholds(inputs[:,group_num*steps+step], outputs[:,group_num*steps+step])
+            outputs[:, group_num*steps+step] = optimize_thresholds(inputs[:,group_num*steps+step], outputs[:,group_num*steps+step], mask=mask)
         else:
             bins = 30
         varname = names[group_num*steps+step]

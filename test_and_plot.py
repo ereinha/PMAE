@@ -52,7 +52,7 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                 outputs_arr = outputs_arr.cpu().numpy()
 
                 if output_vars == 4:
-                    new_btags = outputs_arr[:,:,3:5]
+                    new_b_tags = outputs_arr[:,:,3:5]
                     new_b_tags = np.expand_dims(new_b_tags[:,:,1] - new_b_tags[:,:,0], axis=-1)
                     outputs_arr = np.concatenate((outputs_arr[:,:,:3], new_b_tags), axis=2)
                 outputs_arr = outputs_arr.reshape(outputs_arr.shape[0], outputs_arr.shape[1]*outputs_arr.shape[2])
@@ -60,8 +60,10 @@ def test(loader, test_batch_size, X_test_arr, test_labels, names, models, device
                 outputs_arr_tt = outputs_arr[test_labels==0]
 
                 # Generate histograms
-                utils.make_hist2d(i, output_vars, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', file_path='./outputs/' + model_name, lower=lower, upper=upper)
-                utils.make_hist2d(i, output_vars, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', file_path='./outputs/' + model_name, lower=lower, upper=upper)
+                utils.make_hist2d(i, output_vars, X_test_arr_hh, outputs_arr_hh, scaler, 'di-Higgs', mask=mask_999.int().cpu().numpy(), 
+                                  file_path='./outputs/' + model_name, lower=lower, upper=upper)
+                utils.make_hist2d(i, output_vars, X_test_arr_tt, outputs_arr_tt, scaler, 'ttbar', 
+                                  mask=mask_999.int().cpu().numpy(), file_path='./outputs/' + model_name, lower=lower, upper=upper)
 
     elif information == 'partial':
         tae, classifier = models[0], models[1]
